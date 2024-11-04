@@ -1,0 +1,8 @@
+urls:
+  - url: https://example.com
+    filename: example
+  - url: https://github.com
+    filename: github
+  - url: https://google.com
+    filename: google
+output_directory: new

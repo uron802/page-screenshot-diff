@@ -11,6 +11,7 @@ RUN npm run build
 
 FROM node:20-slim
 
+# Puppeteerの依存関係をインストール
 RUN apt-get update \
     && apt-get install -y \
     chromium \
@@ -34,6 +35,5 @@ COPY package*.json ./
 RUN npm install --production
 
 COPY --from=builder /usr/src/app/dist ./dist
-COPY src/config/config.yml ./config.yml
 
-CMD ["node", "dist/index.js"]
+CMD ["tail", "-f", "/dev/null"]

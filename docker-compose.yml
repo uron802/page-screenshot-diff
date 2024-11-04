@@ -1,12 +1,12 @@
-version: '3.8'
-
 services:
   app:
     build: 
       context: .
       dockerfile: Dockerfile
     volumes:
-      - ./screenshots:/usr/src/app/screenshots
+      - ./output:/usr/src/app/output
+      - ./env/diff.yml:/usr/src/app/diff.yml:ro
+      - ./env/screenshot.yml:/usr/src/app/screenshot.yml:ro
     environment:
       - NODE_ENV=production
     init: true
