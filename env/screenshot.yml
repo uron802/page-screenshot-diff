@@ -5,4 +5,5 @@ urls:
     filename: github
   - url: https://google.com
     filename: google
-output_directory: new
+output:
+  subdirectory: old
