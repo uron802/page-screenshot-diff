@@ -1,20 +1,7 @@
-// types.ts
-interface Screenshot {
-  url: string;
-  filename: string;
-}
-
-interface Config {
-  urls: Screenshot[];
-  output_directory: string;
-}
-
-// index.ts
+import { loadConfig } from './types/config.js';
 import * as fs from 'fs';
 import * as path from 'path';
-import * as yaml from 'yaml';
 import puppeteer from 'puppeteer';
-import { loadConfig} from './types/config';
 
 async function takeScreenshot(url: string, outputPath: string): Promise<void> {
   let browser = null;

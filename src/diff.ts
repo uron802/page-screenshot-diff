@@ -1,4 +1,4 @@
-import { loadDiffConfig } from './types/config';
+import { loadDiffConfig } from './types/config.js'; 
 import * as fs from 'fs';
 import * as path from 'path';
 import { PNG } from 'pngjs';
