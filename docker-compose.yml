@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  app:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ./screenshots:/usr/src/app/screenshots
+    environment:
+      - NODE_ENV=production
+    init: true
