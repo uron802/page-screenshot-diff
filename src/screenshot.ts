@@ -3,7 +3,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 import puppeteer from 'puppeteer';
 
-async function takeScreenshot(url: string, outputPath: string): Promise<void> {
+// テスト用にエクスポート
+export async function takeScreenshot(url: string, outputPath: string): Promise<void> {
   let browser = null;
   try {
     browser = await puppeteer.launch({
@@ -25,7 +26,8 @@ async function takeScreenshot(url: string, outputPath: string): Promise<void> {
   }
 }
 
-async function main(): Promise<void> {
+// テスト用にエクスポート
+export async function main(): Promise<void> {
   const config = loadConfig();
   
   try {
@@ -54,3 +56,9 @@ async function main(): Promise<void> {
 }
 
 main().catch(console.error);
+
+// テスト用にデフォルトエクスポート
+export default {
+  takeScreenshot,
+  main
+};
