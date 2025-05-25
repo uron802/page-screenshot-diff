@@ -55,7 +55,10 @@ export async function main(): Promise<void> {
   }
 }
 
-main().catch(console.error);
+// テスト環境ではない場合のみmain関数を実行
+if (process.env.NODE_ENV !== 'test') {
+  main().catch(console.error);
+}
 
 // テスト用にデフォルトエクスポート
 export default {

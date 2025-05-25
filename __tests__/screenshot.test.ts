@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import puppeteer from 'puppeteer';
 import { loadConfig } from '../src/types/config.js';
+import { jest, describe, it, expect, beforeEach } from '@jest/globals';
 
 // モックのインポート
 jest.mock('fs');

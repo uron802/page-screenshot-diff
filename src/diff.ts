@@ -89,7 +89,10 @@ export function main() {
   }
 }
 
-main();
+// テスト環境ではない場合のみmain関数を実行
+if (process.env.NODE_ENV !== 'test') {
+  main();
+}
 
 // テスト用にデフォルトエクスポート
 export default {

@@ -3,6 +3,7 @@ import * as path from 'path';
 import { PNG } from 'pngjs';
 import pixelmatch from 'pixelmatch';
 import { loadDiffConfig } from '../src/types/config.js';
+import { jest, describe, it, expect, beforeEach } from '@jest/globals';
 
 // モックのインポート
 jest.mock('fs');
@@ -59,7 +60,8 @@ describe('Diff functionality', () => {
         .mockReturnValueOnce(mockImg2);
       
       // コンストラクタモック
-      PNG.mockImplementation(() => mockMergedImage);
+      const MockPNG = PNG as unknown as jest.Mock;
+      MockPNG.mockImplementation(() => mockMergedImage);
       
       // ビットブリットモック
       PNG.bitblt = jest.fn();

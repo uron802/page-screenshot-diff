@@ -40,3 +40,23 @@ docker-compose exec app node dist/screenshot.js
 ```
 docker-compose exec app node dist/diff.js
 ```
+
+## テスト実行
+
+テストを実行するには、以下のコマンドを使用します。
+
+### 全テスト実行
+```
+npm test
+```
+
+### シンプルテスト実行
+機能検証のための基本的なテストのみ実行します。
+```
+npm run test:simple
+```
+
+### ビルドテスト
+```
+npm test -- build.test.ts
+```

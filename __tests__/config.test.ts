@@ -1,6 +1,7 @@
 import { loadConfig, loadDiffConfig } from '../src/types/config.js';
 import * as fs from 'fs';
 import * as path from 'path';
+import { jest, describe, it, expect, beforeEach } from '@jest/globals';
 
 jest.mock('fs');
 jest.mock('path');
