@@ -7,7 +7,7 @@ COPY tsconfig.json ./
 RUN npm install
 
 COPY src/ ./src/
-RUN npm run build
+RUN npx tsc
 
 FROM node:20-slim
 
@@ -32,8 +32,14 @@ ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
 WORKDIR /usr/src/app
 
 COPY package*.json ./
-RUN npm install --production
+COPY jest.config.js ./
+# 開発・テスト環境を含めた依存関係のインストール
+RUN npm install
 
 COPY --from=builder /usr/src/app/dist ./dist
+# テスト実行に必要なファイルをコピー
+COPY __tests__ ./__tests__
+COPY tsconfig.json ./
+COPY src/ ./src/
 
 CMD ["tail", "-f", "/dev/null"]
