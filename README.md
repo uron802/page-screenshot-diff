@@ -80,6 +80,12 @@ npm run test:docker           # 全テスト実行
 npm run test:docker:simple    # シンプルテスト実行
 ```
 
+#### 最小限の基本テスト実行（TypeScriptなし）
+Node.jsの基本機能のみでテストを実行します。環境問題のトラブルシューティングに役立ちます。
+```
+npm run test:basic
+```
+
 #### 特定のテストファイルのみ実行（例：ビルドテスト）
 ```
 docker-compose exec app npm test -- build.test.ts

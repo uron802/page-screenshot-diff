@@ -1,17 +1,15 @@
 import { loadConfig, loadDiffConfig } from '../src/types/config.js';
 import * as fs from 'fs';
-import * as path from 'path';
 import { jest, describe, it, expect, beforeEach } from '@jest/globals';
 
-jest.mock('fs');
-jest.mock('path');
+// モックのインポート
+jest.mock('../src/types/config.js');
 
 describe('Config loading', () => {
   beforeEach(() => {
     jest.resetAllMocks();
     // モック化したprocess.cwdの戻り値を設定
     jest.spyOn(process, 'cwd').mockReturnValue('/test');
-    (path.join as jest.Mock).mockImplementation((...args) => args.join('/'));
   });
 
   describe('loadConfig', () => {

@@ -1,4 +1,10 @@
 import { jest, describe, it, expect } from '@jest/globals';
+
+// Mock puppeteer to avoid path errors
+jest.mock('puppeteer', () => ({
+  launch: jest.fn()
+}));
+
 import * as config from '../src/types/config.js';
 import * as diffModule from '../src/diff.js';
 import * as screenshotModule from '../src/screenshot.js';
@@ -19,15 +25,15 @@ describe('関数のエクスポート確認', () => {
   // diff.ts関連
   describe('diff.ts', () => {
     it('compareAndMergeImages関数がエクスポートされている', () => {
-      expect(typeof diffModule.compareAndMergeImages).toBe('function');
+      expect(typeof diffModule.default.compareAndMergeImages).toBe('function');
     });
     
     it('writeLog関数がエクスポートされている', () => {
-      expect(typeof diffModule.writeLog).toBe('function');
+      expect(typeof diffModule.default.writeLog).toBe('function');
     });
     
     it('main関数がエクスポートされている', () => {
-      expect(typeof diffModule.main).toBe('function');
+      expect(typeof diffModule.default.main).toBe('function');
     });
     
     it('デフォルトエクスポートがある', () => {
@@ -42,11 +48,11 @@ describe('関数のエクスポート確認', () => {
   // screenshot.ts関連
   describe('screenshot.ts', () => {
     it('takeScreenshot関数がエクスポートされている', () => {
-      expect(typeof screenshotModule.takeScreenshot).toBe('function');
+      expect(typeof screenshotModule.default.takeScreenshot).toBe('function');
     });
     
     it('main関数がエクスポートされている', () => {
-      expect(typeof screenshotModule.main).toBe('function');
+      expect(typeof screenshotModule.default.main).toBe('function');
     });
     
     it('デフォルトエクスポートがある', () => {

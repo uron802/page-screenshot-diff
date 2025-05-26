@@ -1,12 +1,9 @@
 import * as fs from 'fs';
-import * as path from 'path';
 import puppeteer from 'puppeteer';
 import { loadConfig } from '../src/types/config.js';
 import { jest, describe, it, expect, beforeEach } from '@jest/globals';
 
 // モックのインポート
-jest.mock('fs');
-jest.mock('path');
 jest.mock('puppeteer');
 jest.mock('../src/types/config.js');
 
@@ -21,23 +18,23 @@ describe('Screenshot functionality', () => {
     
     // process.cwdのモック
     jest.spyOn(process, 'cwd').mockReturnValue('/test');
-    (path.join as jest.Mock).mockImplementation((...args) => args.join('/'));
   });
 
   describe('takeScreenshot', () => {
     it('スクリーンショットを正常に撮影できる', async () => {
       // Puppeteerのモック設定
       const mockPage = {
-        goto: jest.fn().mockResolvedValue(undefined),
-        screenshot: jest.fn().mockResolvedValue(undefined)
+        goto: jest.fn().mockResolvedValue({}),
+        screenshot: jest.fn().mockResolvedValue({})
       };
       
       const mockBrowser = {
         newPage: jest.fn().mockResolvedValue(mockPage),
-        close: jest.fn().mockResolvedValue(undefined)
+        close: jest.fn().mockResolvedValue({})
       };
       
-      (puppeteer.launch as jest.Mock).mockResolvedValue(mockBrowser);
+      // Use direct property assignment without casting
+      (puppeteer as any).launch = jest.fn().mockResolvedValue(mockBrowser);
       
       // takeScreenshot関数の実行
       await screenshotModule.default.takeScreenshot('https://example.com', '/test/output/example.png');
@@ -61,7 +58,7 @@ describe('Screenshot functionality', () => {
     it('エラー発生時に適切に処理される', async () => {
       // Puppeteerのエラーをシミュレート
       const mockError = new Error('Browser launch error');
-      (puppeteer.launch as jest.Mock).mockRejectedValue(mockError);
+      (puppeteer as any).launch = jest.fn().mockRejectedValue(mockError);
       
       // エラーが投げられることを確認
       await expect(screenshotModule.default.takeScreenshot('https://example.com', '/test/output/example.png'))
@@ -126,7 +123,7 @@ describe('Screenshot functionality', () => {
           if (url === 'https://error-site.com') {
             return Promise.reject(new Error('Screenshot failed'));
           }
-          return Promise.resolve();
+          return Promise.resolve(undefined);
         });
       
       // main関数実行

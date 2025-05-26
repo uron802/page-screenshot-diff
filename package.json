@@ -11,7 +11,9 @@
     "test:watch": "node --experimental-vm-modules node_modules/jest/bin/jest.js --watch",
     "test:simple": "NODE_ENV=test node --experimental-vm-modules node_modules/jest/bin/jest.js simple.test.ts exports.test.ts functional.test.ts build.test.ts",
     "test:docker": "docker compose exec app npm test",
-    "test:docker:simple": "docker compose exec app npm run test:simple"
+    "test:docker:simple": "docker compose exec app npm run test:simple",
+    "test:docker:very": "docker compose exec app node --experimental-vm-modules node_modules/jest/bin/jest.js very-simple.test.ts docker.test.ts",
+    "test:basic": "NODE_ENV=test node --experimental-vm-modules node_modules/jest/bin/jest.js basic.test.cjs docker.test.cjs"
   },
   "dependencies": {
     "@types/pixelmatch": "^5.2.6",

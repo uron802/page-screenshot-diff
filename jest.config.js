@@ -11,6 +11,12 @@ export default {
       useESM: true,
     }]
   },
-  // モックをESMで使用するための設定
-  setupFilesAfterEnv: ['./__tests__/setup.js'],
+  // テストで必要なセットアップ
+  setupFiles: ['./__tests__/jest.setup.js'],
+  // testsファイルのマッチングパターン
+  testMatch: [
+    '**/__tests__/**/*.test.ts',
+    '**/__tests__/**/*.test.cjs',
+    '**/__tests__/**/*.test.js'
+  ],
 };

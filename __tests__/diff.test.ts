@@ -6,8 +6,6 @@ import { loadDiffConfig } from '../src/types/config.js';
 import { jest, describe, it, expect, beforeEach } from '@jest/globals';
 
 // モックのインポート
-jest.mock('fs');
-jest.mock('path');
 jest.mock('pngjs');
 jest.mock('pixelmatch');
 jest.mock('../src/types/config.js');
@@ -23,8 +21,6 @@ describe('Diff functionality', () => {
     
     // process.cwdのモック
     jest.spyOn(process, 'cwd').mockReturnValue('/test');
-    (path.join as jest.Mock).mockImplementation((...args) => args.join('/'));
-    (path.basename as jest.Mock).mockImplementation((filePath) => filePath.split('/').pop());
   });
 
   describe('compareAndMergeImages', () => {
@@ -33,16 +29,19 @@ describe('Diff functionality', () => {
       const mockImg1 = { width: 100, height: 100, data: Buffer.from('img1') };
       const mockImg2 = { width: 100, height: 100, data: Buffer.from('img2') };
       
-      PNG.sync.read = jest.fn()
-        .mockReturnValueOnce(mockImg1)
-        .mockReturnValueOnce(mockImg2);
+      // Type assertion for PNG sync methods
+      const mockPNG = PNG as any;
+      mockPNG.sync = {
+        read: jest.fn().mockReturnValueOnce(mockImg1).mockReturnValueOnce(mockImg2),
+        write: jest.fn().mockReturnValue(Buffer.from('test'))
+      };
       
       // pixelmatchは0（差分なし）を返す
       (pixelmatch as jest.Mock).mockReturnValue(0);
       
       const result = diffModule.default.compareAndMergeImages('/test/img1.png', '/test/img2.png');
       
-      expect(PNG.sync.read).toHaveBeenCalledTimes(2);
+      expect(mockPNG.sync.read).toHaveBeenCalledTimes(2);
       expect(pixelmatch).toHaveBeenCalledWith(
         mockImg1.data, mockImg2.data, null, mockImg1.width, mockImg1.height, {threshold: 0.1}
       );
@@ -55,16 +54,18 @@ describe('Diff functionality', () => {
       const mockImg2 = { width: 100, height: 100, data: Buffer.from('img2') };
       const mockMergedImage = { width: 200, height: 100 };
       
-      PNG.sync.read = jest.fn()
-        .mockReturnValueOnce(mockImg1)
-        .mockReturnValueOnce(mockImg2);
+      // Type assertion for PNG sync methods and constructor
+      const mockPNG = PNG as any;
+      mockPNG.sync = {
+        read: jest.fn().mockReturnValueOnce(mockImg1).mockReturnValueOnce(mockImg2),
+        write: jest.fn().mockReturnValue(Buffer.from('merged'))
+      };
       
-      // コンストラクタモック
-      const MockPNG = PNG as unknown as jest.Mock;
-      MockPNG.mockImplementation(() => mockMergedImage);
+      // Constructor mock
+      mockPNG.mockImplementation(() => mockMergedImage);
       
       // ビットブリットモック
-      PNG.bitblt = jest.fn();
+      mockPNG.bitblt = jest.fn();
       
       // pixelmatchは差分を返す
       (pixelmatch as jest.Mock).mockReturnValue(100);
@@ -75,11 +76,10 @@ describe('Diff functionality', () => {
       
       // ファイル書き込みモック
       (fs.writeFileSync as jest.Mock).mockReturnValue(undefined);
-      PNG.sync.write = jest.fn().mockReturnValue(Buffer.from('merged'));
       
       const result = diffModule.default.compareAndMergeImages('/test/img1.png', '/test/img2.png');
       
-      expect(PNG.sync.read).toHaveBeenCalledTimes(2);
+      expect(mockPNG.sync.read).toHaveBeenCalledTimes(2);
       expect(pixelmatch).toHaveBeenCalledWith(
         mockImg1.data, mockImg2.data, null, mockImg1.width, mockImg1.height, {threshold: 0.1}
       );
@@ -89,7 +89,7 @@ describe('Diff functionality', () => {
       expect(fs.mkdirSync).toHaveBeenCalledWith('/test/output/diff', { recursive: true });
       
       // 画像合成確認
-      expect(PNG.bitblt).toHaveBeenCalledTimes(2);
+      expect(mockPNG.bitblt).toHaveBeenCalledTimes(2);
       
       // ファイル書き込み確認
       expect(fs.writeFileSync).toHaveBeenCalledWith(
@@ -105,9 +105,13 @@ describe('Diff functionality', () => {
     
     it('エラー発生時は適切に処理される', () => {
       // エラーをシミュレート
-      PNG.sync.read = jest.fn().mockImplementation(() => {
-        throw new Error('PNG read error');
-      });
+      const mockPNG = PNG as any;
+      mockPNG.sync = {
+        read: jest.fn().mockImplementation(() => {
+          throw new Error('PNG read error');
+        }),
+        write: jest.fn()
+      };
       
       const result = diffModule.default.compareAndMergeImages('/test/img1.png', '/test/img2.png');
       
@@ -120,7 +124,7 @@ describe('Diff functionality', () => {
     it('ログファイルに正しく書き込まれる', () => {
       // 日付モック
       const mockDate = new Date('2023-01-01T12:00:00Z');
-      jest.spyOn(global, 'Date').mockImplementation(() => mockDate);
+      jest.spyOn(global, 'Date').mockImplementation(() => mockDate as any);
       
       // ディレクトリチェック
       (fs.existsSync as jest.Mock).mockReturnValue(false);
@@ -155,7 +159,7 @@ describe('Diff functionality', () => {
       };
       (loadDiffConfig as jest.Mock).mockReturnValue(mockConfig);
       
-      // ファイル一覧モック
+      // ファイル一覧モック - readdirSync returns string[] in our implementation
       (fs.readdirSync as jest.Mock).mockReturnValue(['image1.png', 'image2.png', 'notpng.txt']);
       
       // ファイル存在チェック
