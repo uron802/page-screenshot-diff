@@ -2,6 +2,43 @@ import { jest, describe, it, expect } from '@jest/globals';
 import path from 'path';
 import fs from 'fs';
 
+// 環境変数の取得
+const isDockerEnvironment = (global as any).__isDockerEnvironment__;
+
+// 設定するenv下のテスト用ファイル
+const createTestEnvFiles = () => {
+  // Docker環境でのみ実施
+  if (isDockerEnvironment) {
+    // envディレクトリを確認・作成
+    const envDir = path.join(process.cwd(), 'env');
+    if (!fs.existsSync(envDir)) {
+      fs.mkdirSync(envDir, { recursive: true });
+    }
+    
+    // screenshot.ymlが存在しない場合は作成
+    const screenshotPath = path.join(envDir, 'screenshot.yml');
+    if (!fs.existsSync(screenshotPath)) {
+      const screenshotContent = `urls:
+  - url: https://example.com
+    filename: example
+output:
+  subdirectory: screenshots`;
+      fs.writeFileSync(screenshotPath, screenshotContent);
+    }
+    
+    // diff.ymlが存在しない場合は作成
+    const diffPath = path.join(envDir, 'diff.yml');
+    if (!fs.existsSync(diffPath)) {
+      const diffContent = `source_directory: source
+target_directory: target`;
+      fs.writeFileSync(diffPath, diffContent);
+    }
+  }
+};
+
+// テスト環境ファイルを準備
+createTestEnvFiles();
+
 // 簡単なテストケースを作成
 describe('基本機能テスト', () => {
   

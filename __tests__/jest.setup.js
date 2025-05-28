@@ -12,11 +12,15 @@ global.expect = jestExpect;
 const inDocker = fs.existsSync('/.dockerenv');
 const isDockerTest = process.env.TEST_IN_DOCKER === 'true' || inDocker;
 
+console.log(`Running in Docker environment: ${isDockerTest ? 'YES' : 'NO'}`);
+
 // Only mock fs and path when not in Docker environment
 if (!isDockerTest) {
   // Mock initialization code to avoid TypeScript errors for most unit tests
   jest.mock('fs');
-  jest.mock('path', () => ({
+  
+  // Create properly typable mocks for common modules
+  const pathMock = {
     join: jest.fn((...parts) => parts.join('/')),
     basename: jest.fn(filepath => {
       const parts = String(filepath).split('/');
@@ -32,5 +36,15 @@ if (!isDockerTest) {
       return parts.length > 1 ? `.${parts.pop()}` : '';
     }),
     resolve: jest.fn((...parts) => parts.join('/'))
-  }));
+  };
+  
+  jest.mock('path', () => pathMock);
+  
+  // Make these mocks available globally for tests
+  global.__mocks__ = {
+    path: pathMock
+  };
 }
+
+// Expose the environment flag for tests to check
+global.__isDockerEnvironment__ = isDockerTest;
