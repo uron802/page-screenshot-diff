@@ -1,14 +1,3 @@
-FROM node:20-slim AS builder
-
-WORKDIR /usr/src/app
-
-COPY package*.json ./
-COPY tsconfig.json ./
-RUN npm install
-
-COPY src/ ./src/
-RUN npx tsc
-
 FROM node:20-slim
 
 # Puppeteerの依存関係をインストール
@@ -27,16 +16,19 @@ RUN apt-get update \
     && rm -rf /var/lib/apt/lists/*
 
 ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD=true \
-    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium
+    PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium \
+    PUPPETEER_SKIP_DOWNLOAD=true
 
 WORKDIR /usr/src/app
 
 COPY package*.json ./
 COPY jest.config.js ./
-# 開発・テスト環境を含めた依存関係のインストール
-RUN npm install
 
-COPY --from=builder /usr/src/app/dist ./dist
+# Copy node_modules from host since npm install is failing due to network issues
+COPY node_modules ./node_modules
+
+# Copy pre-built dist files
+COPY dist ./dist
 # テスト実行に必要なファイルをコピー
 COPY __tests__ ./__tests__
 COPY tsconfig.json ./
