@@ -12,7 +12,7 @@ export default {
     }]
   },
   // テストで必要なセットアップ
-  setupFiles: ['./__tests__/jest.setup.js'],
+  setupFilesAfterEnv: ['./__tests__/jest.setup.js'],
   // testsファイルのマッチングパターン
   testMatch: [
     '**/__tests__/**/*.test.ts',
