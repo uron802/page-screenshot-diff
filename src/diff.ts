@@ -90,7 +90,8 @@ export function main() {
 }
 
 // テスト環境ではない場合のみmain関数を実行
-if (process.env.NODE_ENV !== 'test') {
+// Jest環境やDockerテスト環境では実行しない
+if (process.env.NODE_ENV !== 'test' && !process.env.JEST_WORKER_ID && !process.env.TEST_IN_DOCKER) {
   main();
 }
 
