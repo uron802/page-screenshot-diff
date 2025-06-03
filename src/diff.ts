@@ -4,7 +4,8 @@ import * as path from 'path';
 import { PNG } from 'pngjs';
 import pixelmatch from 'pixelmatch';
 
-function compareAndMergeImages(imagePath1: string, imagePath2: string): {isMatch: boolean; mergedImagePath?: string} {
+// テスト用にエクスポート
+export function compareAndMergeImages(imagePath1: string, imagePath2: string): {isMatch: boolean; mergedImagePath?: string} {
   try {
     const img1 = PNG.sync.read(fs.readFileSync(imagePath1));
     const img2 = PNG.sync.read(fs.readFileSync(imagePath2));
@@ -42,7 +43,8 @@ function compareAndMergeImages(imagePath1: string, imagePath2: string): {isMatch
 }
 
 
-function writeLog(message: string) {
+// テスト用にエクスポート
+export function writeLog(message: string) {
   const logDir = path.join(process.cwd(), 'output', 'diff');
   const logPath = path.join(logDir, 'diff.log');
   
@@ -57,7 +59,8 @@ function writeLog(message: string) {
   console.log(message);
 }
 
-function main() {
+// テスト用にエクスポート
+export function main() {
   try {
     const config = loadDiffConfig();
     const sourceDir = path.join(process.cwd(), 'output', config.source_directory);
@@ -86,4 +89,15 @@ function main() {
   }
 }
 
-main();
+// テスト環境ではない場合のみmain関数を実行
+// Jest環境やDockerテスト環境では実行しない
+if (process.env.NODE_ENV !== 'test' && !process.env.JEST_WORKER_ID && !process.env.TEST_IN_DOCKER) {
+  main();
+}
+
+// テスト用にデフォルトエクスポート
+export default {
+  compareAndMergeImages,
+  writeLog,
+  main
+};

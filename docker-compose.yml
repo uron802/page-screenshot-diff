@@ -9,4 +9,5 @@ services:
       - ./env/screenshot.yml:/usr/src/app/screenshot.yml:ro
     environment:
       - NODE_ENV=production
+      - TEST_IN_DOCKER=true
     init: true
