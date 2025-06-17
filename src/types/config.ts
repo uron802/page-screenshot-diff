@@ -17,6 +17,8 @@ export interface ScreenshotConfig {
 export interface DiffConfig {
   source_directory: string;
   target_directory: string;
+  /** 画像比較の許容範囲(0-1)。省略時は0.1 */
+  threshold?: number;
 }
 
 // 設定ファイル読み込み関数
@@ -49,6 +51,14 @@ export function loadDiffConfig(): DiffConfig {
 
     if (!config?.source_directory || !config?.target_directory) {
       throw new Error('Invalid config: source_directory and target_directory are required');
+    }
+
+    if (config.threshold !== undefined && typeof config.threshold !== 'number') {
+      throw new Error('Invalid config: threshold must be a number');
+    }
+
+    if (config.threshold === undefined) {
+      config.threshold = 0.1;
     }
 
     return config;

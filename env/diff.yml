@@ -1,2 +1,3 @@
 source_directory: old
 target_directory: new
+threshold: 0.1 # 実行時の--thresholdオプションで上書き可能
