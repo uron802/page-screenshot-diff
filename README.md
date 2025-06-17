@@ -27,6 +27,7 @@ output:
 ```
 source_directory: new
 target_directory: old
+threshold: 0.1 # 実行時オプションで変更可
 ```
 
 ## コマンド実行
@@ -38,8 +39,9 @@ docker-compose exec app node dist/screenshot.js
 
 ### 画像の差分比較
 ```
-docker-compose exec app node dist/diff.js
+docker-compose exec app node dist/diff.js [--threshold 0.2]
 ```
+`--threshold` オプションを指定すると、実行時に比較の閾値を上書きできます。
 
 ## テスト実行
 

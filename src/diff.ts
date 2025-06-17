@@ -5,12 +5,23 @@ import { PNG } from 'pngjs';
 import pixelmatch from 'pixelmatch';
 
 // テスト用にエクスポート
-export function compareAndMergeImages(imagePath1: string, imagePath2: string): {isMatch: boolean; mergedImagePath?: string} {
+export function compareAndMergeImages(
+  imagePath1: string,
+  imagePath2: string,
+  threshold: number = 0.1
+): { isMatch: boolean; mergedImagePath?: string } {
   try {
     const img1 = PNG.sync.read(fs.readFileSync(imagePath1));
     const img2 = PNG.sync.read(fs.readFileSync(imagePath2));
 
-    const numDiffPixels = pixelmatch(img1.data, img2.data, null, img1.width, img1.height, {threshold: 0.1});
+    const numDiffPixels = pixelmatch(
+      img1.data,
+      img2.data,
+      null,
+      img1.width,
+      img1.height,
+      { threshold }
+    );
     
     if (numDiffPixels === 0) {
       return { isMatch: true };
@@ -63,6 +74,25 @@ export function writeLog(message: string) {
 export function main() {
   try {
     const config = loadDiffConfig();
+
+    // コマンドライン引数から閾値を上書きできるようにする
+    const args = process.argv.slice(2);
+    let cliThreshold: number | undefined;
+    for (let i = 0; i < args.length; i++) {
+      if (args[i] === '--threshold' || args[i] === '-t') {
+        const value = args[i + 1];
+        cliThreshold = value ? parseFloat(value) : undefined;
+        i++;
+      } else if (args[i].startsWith('--threshold=')) {
+        cliThreshold = parseFloat(args[i].split('=')[1]);
+      }
+    }
+
+    const threshold =
+      cliThreshold !== undefined && !isNaN(cliThreshold)
+        ? cliThreshold
+        : config.threshold;
+
     const sourceDir = path.join(process.cwd(), 'output', config.source_directory);
     const targetDir = path.join(process.cwd(), 'output', config.target_directory);
 
@@ -77,7 +107,7 @@ export function main() {
         continue;
       }
 
-      const result = compareAndMergeImages(sourcePath, targetPath);
+      const result = compareAndMergeImages(sourcePath, targetPath, threshold);
       writeLog(`${file}: ${result.isMatch ? '一致' : '不一致'}`);
       if (!result.isMatch && result.mergedImagePath) {
         writeLog(`  比較画像: ${result.mergedImagePath}`);
