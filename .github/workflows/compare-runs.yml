@@ -1,0 +1,56 @@
+name: Compare Two Runs
+
+on:
+  workflow_dispatch:
+
+jobs:
+  compare:
+    runs-on: ubuntu-latest
+    env:
+      PUPPETEER_SKIP_DOWNLOAD: 'true'
+      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
+      PUPPETEER_EXECUTABLE_PATH: /usr/bin/chromium-browser
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install system packages
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            chromium-browser \
+            build-essential \
+            libcairo2-dev \
+            libjpeg-dev \
+            libpango1.0-dev \
+            libgif-dev
+
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build scripts
+        run: npm run build
+
+      - name: Prepare configs
+        run: |
+          cp env/screenshot.yml screenshot.yml
+          cp env/diff.yml diff.yml
+
+      - name: First capture (run1)
+        run: |
+          sed -i 's/subdirectory:.*/subdirectory: run1/' screenshot.yml
+          node dist/screenshot.js
+
+      - name: Second capture (run2)
+        run: |
+          sed -i 's/subdirectory:.*/subdirectory: run2/' screenshot.yml
+          node dist/screenshot.js
+
+      - name: Compare images
+        run: |
+          sed -i 's/source_directory:.*/source_directory: run1/' diff.yml
+          sed -i 's/target_directory:.*/target_directory: run2/' diff.yml
+          node dist/diff.js
