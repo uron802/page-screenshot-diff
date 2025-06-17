@@ -93,12 +93,3 @@ npm run test:basic
 docker-compose exec app npm test -- build.test.ts
 ```
 
-## GitHub Actionsでの2回連続比較
-
-リポジトリには1回のワークフロー内でスクリーンショットを2回取得し、差分比較を行う例として `compare-runs.yml` を用意しています。永続的なストレージを使わず、実行環境の一時領域のみを利用するため課金は発生しません。
-
-1. `compare-runs.yml` は手動トリガー (`workflow_dispatch`) で実行できます。
-2. ワークフロー内で `screenshot.yml` の `output.subdirectory` を `run1`、`run2` と書き換え、それぞれ `node dist/screenshot.js` を実行します。
-3. 最後に `diff.yml` の比較対象を `run1` と `run2` に設定して `node dist/diff.js` を実行し、`output/diff` に結果を出力します。
-
-結果の画像はジョブ終了後に削除されるため、必要に応じて処理内で利用してください。
