@@ -1,0 +1,70 @@
+import { jest, describe, it, expect, beforeAll, afterAll } from '@jest/globals';
+import http from 'http';
+import fs from 'fs';
+import path from 'path';
+import * as yaml from 'yaml';
+
+// Puppeteer モック
+jest.mock('puppeteer');
+import * as puppeteerMock from 'puppeteer';
+const { launch } = puppeteerMock as any;
+
+
+let server: http.Server;
+let port: number;
+
+beforeAll(done => {
+  server = http.createServer((req, res) => {
+    if (req.url === '/page2') {
+      res.end('<html><body><h1>page2</h1></body></html>');
+    } else {
+      res.end('<html><body><form action="/page2"><input id="user" name="user"><button id="login">Login</button></form></body></html>');
+    }
+  }).listen(0, () => {
+    const addr = server.address() as any;
+    port = addr.port;
+    done();
+  });
+});
+
+afterAll(done => {
+  server.close(done);
+});
+
+describe('runScenario', () => {
+  it('シナリオを実行して各アクションを呼び出す', async () => {
+    const tmp = fs.mkdtempSync(path.join(process.cwd(), 'scenario-test-'));
+    const scenarioPath = path.join(tmp, 'scenario.yml');
+    const paramsPath = path.join(tmp, 'params.csv');
+    const outputDir = path.join(tmp, 'out');
+
+    const scenario = {
+      defaultTimeout: 500,
+      actions: [
+        { action: 'goto', url: `http://localhost:${port}/` },
+        { action: 'type', selector: '#user', text: '${name}' },
+        { action: 'click', selector: '#login' },
+        { action: 'wait', wait: 100 }
+      ]
+    };
+    fs.writeFileSync(scenarioPath, yaml.stringify(scenario));
+    fs.writeFileSync(paramsPath, 'name,age\nalice,20\n');
+    fs.mkdirSync(outputDir);
+
+    const mod = await import('../src/scenario.js');
+    await expect(mod.runScenario(scenarioPath, paramsPath, outputDir)).rejects.toThrow();
+  });
+
+  it('CLIで--outputオプションを解釈できる', async () => {
+    const tmp = fs.mkdtempSync(path.join(process.cwd(), 'scenario-cli-'));
+    const scenarioPath = path.join(tmp, 'sc.yml');
+    const paramsPath = path.join(tmp, 'pr.csv');
+    fs.writeFileSync(scenarioPath, yaml.stringify({ actions: [] }));
+    fs.writeFileSync(paramsPath, 'a\n1\n');
+
+    const mod = await import('../src/scenario.js');
+    const outDir = path.join(tmp, 'out');
+    const result = mod.parseArgs(['--scenario', scenarioPath, '--params', paramsPath, '--output', outDir]);
+    expect(result).toEqual({ scenarioPath, paramsPath, outputDir: outDir });
+  });
+});
