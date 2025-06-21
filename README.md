@@ -69,8 +69,11 @@ actions:
     screenshot: step3
   - action: wait
     wait: 1000 # ミリ秒
-    screenshot: step4
+    screenshot: false
 ```
+
+`screenshot` に `false` を指定すると、そのアクションではスクリーンショットを撮影しません。
+文字列を指定するとファイル名として利用し、`true` または省略した場合はデフォルト名で保存します。
 
 `params.csv`例 (複数列も利用できます):
 ```

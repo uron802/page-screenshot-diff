@@ -11,7 +11,12 @@ interface ScenarioAction {
   /** waitアクションで指定する待機ミリ秒 */
   wait?: number;
   timeout?: number;
-  screenshot?: string;
+  /**
+   * スクリーンショットファイル名。
+   * false を指定すると撮影しない。
+   * true または未指定の場合はデフォルト名で撮影。
+   */
+  screenshot?: string | boolean;
 }
 
 interface Scenario {
@@ -69,9 +74,14 @@ async function runAction(page: Page, action: ScenarioAction, params: Params, def
         throw new Error(`Unknown action: ${action.action}`);
     }
 
-    const name = action.screenshot ?? `${rowIndex + 1}-${actionIndex + 1}`;
-    const file = path.join(outputDir, `${name}.png`);
-    await page.screenshot({ path: file, fullPage: true });
+    if (action.screenshot !== false) {
+      const name =
+        typeof action.screenshot === 'string' && action.screenshot !== ''
+          ? action.screenshot
+          : `${rowIndex + 1}-${actionIndex + 1}`;
+      const file = path.join(outputDir, `${name}.png`);
+      await page.screenshot({ path: file, fullPage: true });
+    }
   } catch (e) {
     console.error('Action failed:', e);
     throw e;

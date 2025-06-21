@@ -51,6 +51,7 @@ describe('runScenario', () => {
   let tmpDirs: string[] = [];
 
   afterEach(() => {
+    jest.clearAllMocks();
     for (const dir of tmpDirs) {
       fs.rmSync(dir, { recursive: true, force: true });
     }
@@ -84,7 +85,29 @@ describe('runScenario', () => {
     expect(puppeteerAny.goto).toHaveBeenCalled();
     expect(puppeteerAny.type).toHaveBeenCalledWith('#user', 'alice');
     expect(puppeteerAny.click).toHaveBeenCalledWith('#login');
-    expect(puppeteerAny.screenshot).toHaveBeenCalled();
+    expect(puppeteerAny.screenshot.mock.calls.length).toBe(4);
+  });
+
+  it('screenshotをfalseにしたアクションは撮影しない', async () => {
+    const tmp = fs.mkdtempSync(path.join(process.cwd(), 'scenario-nosshot-'));
+    tmpDirs.push(tmp);
+    const scenarioPath = path.join(tmp, 'scenario.yml');
+    const paramsPath = path.join(tmp, 'params.csv');
+    const outputDir = path.join(tmp, 'out');
+
+    const scenario = {
+      actions: [
+        { action: 'goto', url: `http://localhost:${port}/`, screenshot: false },
+        { action: 'wait', wait: 50 }
+      ]
+    };
+    fs.writeFileSync(scenarioPath, yaml.stringify(scenario));
+    fs.writeFileSync(paramsPath, 'x\n1\n');
+    fs.mkdirSync(outputDir);
+
+    const mod = await import('../src/scenario.js');
+    await mod.runScenario(scenarioPath, paramsPath, outputDir, puppeteerAny);
+    expect(puppeteerAny.screenshot.mock.calls.length).toBe(1);
   });
 
   it('CLIで--outputオプションを解釈できる', async () => {
