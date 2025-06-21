@@ -4,10 +4,26 @@ import fs from 'fs';
 import path from 'path';
 import * as yaml from 'yaml';
 
-// Puppeteer モック
-jest.mock('puppeteer');
-import * as puppeteerMock from 'puppeteer';
-const { launch } = puppeteerMock as any;
+// Puppeteer モックを定義
+const goto = jest.fn();
+const click = jest.fn();
+const type = jest.fn();
+const screenshot = jest.fn();
+const waitForTimeout = jest.fn();
+const waitForNavigation = jest.fn(() => Promise.resolve());
+const page = { goto, click, type, screenshot, waitForTimeout, waitForNavigation };
+const newPage = jest.fn(async () => page);
+const close = jest.fn();
+const browser = { newPage, close };
+const launch = jest.fn(async () => browser);
+
+jest.mock('puppeteer', () => ({
+  __esModule: true,
+  default: { launch },
+  launch
+}));
+
+const puppeteerAny = { launch, newPage, goto, click, type, screenshot, waitForTimeout } as any;
 
 
 let server: http.Server;
@@ -62,7 +78,13 @@ describe('runScenario', () => {
     fs.mkdirSync(outputDir);
 
     const mod = await import('../src/scenario.js');
-    await expect(mod.runScenario(scenarioPath, paramsPath, outputDir)).rejects.toThrow();
+    await mod.runScenario(scenarioPath, paramsPath, outputDir, puppeteerAny);
+    expect(launch).toHaveBeenCalled();
+    expect(puppeteerAny.newPage).toHaveBeenCalled();
+    expect(puppeteerAny.goto).toHaveBeenCalled();
+    expect(puppeteerAny.type).toHaveBeenCalledWith('#user', 'alice');
+    expect(puppeteerAny.click).toHaveBeenCalledWith('#login');
+    expect(puppeteerAny.screenshot).toHaveBeenCalled();
   });
 
   it('CLIで--outputオプションを解釈できる', async () => {
