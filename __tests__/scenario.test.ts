@@ -1,4 +1,4 @@
-import { jest, describe, it, expect, beforeAll, afterAll } from '@jest/globals';
+import { jest, describe, it, expect, beforeAll, afterAll, afterEach } from '@jest/globals';
 import http from 'http';
 import fs from 'fs';
 import path from 'path';
@@ -32,8 +32,18 @@ afterAll(done => {
 });
 
 describe('runScenario', () => {
+  let tmpDirs: string[] = [];
+
+  afterEach(() => {
+    for (const dir of tmpDirs) {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+    tmpDirs = [];
+  });
+
   it('シナリオを実行して各アクションを呼び出す', async () => {
     const tmp = fs.mkdtempSync(path.join(process.cwd(), 'scenario-test-'));
+    tmpDirs.push(tmp);
     const scenarioPath = path.join(tmp, 'scenario.yml');
     const paramsPath = path.join(tmp, 'params.csv');
     const outputDir = path.join(tmp, 'out');
@@ -57,6 +67,7 @@ describe('runScenario', () => {
 
   it('CLIで--outputオプションを解釈できる', async () => {
     const tmp = fs.mkdtempSync(path.join(process.cwd(), 'scenario-cli-'));
+    tmpDirs.push(tmp);
     const scenarioPath = path.join(tmp, 'sc.yml');
     const paramsPath = path.join(tmp, 'pr.csv');
     fs.writeFileSync(scenarioPath, yaml.stringify({ actions: [] }));

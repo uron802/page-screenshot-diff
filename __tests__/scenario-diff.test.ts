@@ -1,4 +1,4 @@
-import { jest, describe, it, expect } from '@jest/globals';
+import { jest, describe, it, expect, afterEach } from '@jest/globals';
 import fs from 'fs';
 import path from 'path';
 import { PNG } from 'pngjs';
@@ -20,9 +20,19 @@ function createPng(file: string, value: number) {
 }
 
 describe('diffScenario', () => {
+  let tmpDirs: string[] = [];
+
+  afterEach(() => {
+    for (const dir of tmpDirs) {
+      fs.rmSync(dir, { recursive: true, force: true });
+    }
+    tmpDirs = [];
+  });
+
   it('同じ画像は一致と判定される', () => {
     const dir1 = fs.mkdtempSync(path.join(process.cwd(), 'sdiff1-'));
     const dir2 = fs.mkdtempSync(path.join(process.cwd(), 'sdiff2-'));
+    tmpDirs.push(dir1, dir2);
     const s1 = path.join(dir1, '0');
     const s2 = path.join(dir2, '0');
     fs.mkdirSync(s1); fs.mkdirSync(s2);
@@ -37,6 +47,7 @@ describe('diffScenario', () => {
   it('異なる画像は不一致と判定される', () => {
     const dir1 = fs.mkdtempSync(path.join(process.cwd(), 'sdiff3-'));
     const dir2 = fs.mkdtempSync(path.join(process.cwd(), 'sdiff4-'));
+    tmpDirs.push(dir1, dir2);
     const s1 = path.join(dir1, '0');
     const s2 = path.join(dir2, '0');
     fs.mkdirSync(s1); fs.mkdirSync(s2);
@@ -51,6 +62,7 @@ describe('diffScenario', () => {
   it('mainで--thresholdオプションを解釈できる', () => {
     const oldDir = fs.mkdtempSync(path.join(process.cwd(), 'sdiff-cli-old-'));
     const newDir = fs.mkdtempSync(path.join(process.cwd(), 'sdiff-cli-new-'));
+    tmpDirs.push(oldDir, newDir);
     const file1 = path.join(oldDir, '1-1.png');
     const file2 = path.join(newDir, '1-1.png');
     createPng(file1, 0);

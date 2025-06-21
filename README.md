@@ -11,6 +11,13 @@ docker-compose build
 docker-compose up -d
 ```
 
+### 依存ライブラリのインストール
+テスト実行やビルドの前に依存ライブラリをインストールします。
+Chrome のダウンロードを省略したい場合は次のようにします。
+```bash
+PUPPETEER_SKIP_DOWNLOAD=1 npm install
+```
+
 ### 設定
 `env/screenshot.yml`:
 ```
