@@ -11,6 +11,13 @@ docker-compose build
 docker-compose up -d
 ```
 
+### 依存ライブラリのインストール
+テスト実行やビルドの前に依存ライブラリをインストールします。
+Chrome のダウンロードを省略したい場合は次のようにします。
+```bash
+PUPPETEER_SKIP_DOWNLOAD=1 npm install
+```
+
 ### 設定
 `env/screenshot.yml`:
 ```
@@ -37,11 +44,67 @@ threshold: 0.1 # 実行時オプションで変更可
 docker-compose exec app node dist/screenshot.js
 ```
 
+### シナリオに沿ったスクリーンショット
+YMLで定義したシナリオとCSVのパラメータを組み合わせてアクションごとに画面を保存します。
+
+```bash
+docker-compose exec app node dist/scenario.js --scenario env/scenario.yml --params env/params.csv --output output/run1
+```
+
+`--output` (または `-o`) オプションで保存先ディレクトリを指定します。
+
+`scenario.yml`例:
+```yaml
+defaultTimeout: 10000
+actions:
+  - action: goto
+    url: https://example.com/login
+    screenshot: step1
+  - action: type
+    selector: '#user'
+    text: '${username}'
+    screenshot: step2
+  - action: click
+    selector: '#login'
+    screenshot: step3
+  - action: wait
+    wait: 1000 # ミリ秒
+    screenshot: step4
+```
+
+`params.csv`例 (複数列も利用できます):
+```
+username,age
+testuser1,20
+testuser2,30
+```
+
+`screenshot` オプションを省略した場合、スクリーンショットは `行番号-アクション番号.png`
+の形式で保存されます。（例: `1-1.png`）
+
+#### アクション一覧
+
+| action | 必須オプション | その他のオプション | 説明 |
+| ------ | ------------- | ------------------ | ---- |
+| `goto` | `url` | `timeout`, `screenshot` | 指定したURLへ遷移します |
+| `click` | `selector` | `timeout`, `screenshot` | CSSセレクタで指定した要素をクリックします。遷移を伴う場合`timeout`で待ち時間を上書きできます |
+| `type` | `selector`, `text` | `screenshot` | テキストを入力します。`${変数}`でCSVの値を利用できます |
+| `wait` | `wait` | `screenshot` | 指定ミリ秒だけ待機します |
+
 ### 画像の差分比較
 ```
 docker-compose exec app node dist/diff.js [--threshold 0.2]
 ```
 `--threshold` オプションを指定すると、実行時に比較の閾値を上書きできます。
+
+### シナリオ結果の差分比較
+過去と新しい実行結果のディレクトリを指定して比較を行います。
+```
+docker-compose exec app node dist/scenarioDiff.js --old output/run1 --new output/run2 [--threshold 0.2]
+```
+同名ファイルを比較し、`一致` または `不一致` を表示します。
+`--old` と `--new` にはシナリオ実行時に `--output` で指定したディレクトリを指定します。
+`--threshold` (または `-t`) オプションで差分判定の閾値を指定できます。
 
 ## テスト実行
 
