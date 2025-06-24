@@ -36,13 +36,15 @@ export async function main(): Promise<void> {
     console.log(`Output directory: ${outputDir}`);
 
     if (!fs.existsSync(outputDir)) {
-      fs.mkdirSync(outputDir, { recursive: true });
+      fs.mkdirSync(outputDir, { recursive: true, mode: 0o777 });
     }
+    fs.chmodSync(outputDir, 0o777);
 
     for (const urlConfig of config.urls) {
       try {
         const outputPath = path.join(outputDir, `${urlConfig.filename}.png`);
         await takeScreenshot(urlConfig.url, outputPath);
+        fs.chmodSync(outputPath, 0o666);
         console.log(`Successfully captured screenshot for: ${urlConfig.url}`);
       } catch (error) {
         console.error(`Failed to capture ${urlConfig.url}:`, error);
