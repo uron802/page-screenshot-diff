@@ -70,7 +70,7 @@ describe('runScenario', () => {
       actions: [
         { action: 'goto', url: `http://localhost:${port}/` },
         { action: 'type', selector: '#user', text: '${name}' },
-        { action: 'click', selector: '#login' },
+        { action: 'click', selector: '#login', wait: 150 },
         { action: 'wait', wait: 100 }
       ]
     };
@@ -85,6 +85,8 @@ describe('runScenario', () => {
     expect(puppeteerAny.goto).toHaveBeenCalled();
     expect(puppeteerAny.type).toHaveBeenCalledWith('#user', 'alice');
     expect(puppeteerAny.click).toHaveBeenCalledWith('#login');
+    expect(puppeteerAny.waitForTimeout).toHaveBeenCalledWith(150);
+    expect(puppeteerAny.waitForTimeout).toHaveBeenCalledWith(100);
     expect(puppeteerAny.screenshot.mock.calls.length).toBe(4);
   });
 
@@ -107,6 +109,7 @@ describe('runScenario', () => {
 
     const mod = await import('../src/scenario.js');
     await mod.runScenario(scenarioPath, paramsPath, outputDir, puppeteerAny);
+    expect(puppeteerAny.waitForTimeout).toHaveBeenCalledWith(50);
     expect(puppeteerAny.screenshot.mock.calls.length).toBe(1);
   });
 

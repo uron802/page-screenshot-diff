@@ -1,3 +1,7 @@
 node_modules/
 dist/
 output/
+# env ディレクトリの追加ファイルは管理しない
+env/*
+!env/diff.yml
+!env/screenshot.yml
