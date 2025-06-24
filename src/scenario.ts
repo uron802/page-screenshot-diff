@@ -106,17 +106,17 @@ export async function runScenario(
   const records = parseCsv(paramsFile);
   const defaultTimeout = scenario.defaultTimeout ?? 10000;
 
+  fs.mkdirSync(outputBase, { recursive: true });
+
   for (let i = 0; i < records.length; i++) {
     const params = records[i];
-    const runDir = path.join(outputBase, `${i}`);
-    fs.mkdirSync(runDir, { recursive: true });
 
     const browser = await puppeteerLib.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
     const page = await browser.newPage();
     try {
       for (let j = 0; j < scenario.actions.length; j++) {
         const action = scenario.actions[j];
-        await runAction(page, action, params, defaultTimeout, runDir, i, j);
+        await runAction(page, action, params, defaultTimeout, outputBase, i, j);
       }
     } catch (e) {
       console.error('Scenario aborted due to error');

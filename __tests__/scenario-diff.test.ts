@@ -33,11 +33,8 @@ describe('diffScenario', () => {
     const dir1 = fs.mkdtempSync(path.join(process.cwd(), 'sdiff1-'));
     const dir2 = fs.mkdtempSync(path.join(process.cwd(), 'sdiff2-'));
     tmpDirs.push(dir1, dir2);
-    const s1 = path.join(dir1, '0');
-    const s2 = path.join(dir2, '0');
-    fs.mkdirSync(s1); fs.mkdirSync(s2);
-    const f1 = path.join(s1, '1-1.png');
-    const f2 = path.join(s2, '1-1.png');
+    const f1 = path.join(dir1, '1-1.png');
+    const f2 = path.join(dir2, '1-1.png');
     createPng(f1, 0);
     createPng(f2, 0);
     const result = mod.diffScenario(dir1, dir2, 0.1);
@@ -48,11 +45,8 @@ describe('diffScenario', () => {
     const dir1 = fs.mkdtempSync(path.join(process.cwd(), 'sdiff3-'));
     const dir2 = fs.mkdtempSync(path.join(process.cwd(), 'sdiff4-'));
     tmpDirs.push(dir1, dir2);
-    const s1 = path.join(dir1, '0');
-    const s2 = path.join(dir2, '0');
-    fs.mkdirSync(s1); fs.mkdirSync(s2);
-    const f1 = path.join(s1, '1-1.png');
-    const f2 = path.join(s2, '1-1.png');
+    const f1 = path.join(dir1, '1-1.png');
+    const f2 = path.join(dir2, '1-1.png');
     createPng(f1, 0);
     createPng(f2, 255);
     const result = mod.diffScenario(dir1, dir2, 0.1);
