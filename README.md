@@ -59,6 +59,7 @@ docker-compose exec app node dist/scenario.js --scenario env/scenario.yml --para
 ```
 
 `--output` (または `-o`) オプションで保存先ディレクトリを指定します。
+実行中は各アクションの結果が順次コンソールに表示されます。
 
 `scenario.yml`例:
 ```yaml

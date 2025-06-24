@@ -52,8 +52,18 @@ function substitute(template: string, params: Params): string {
   return template.replace(/\${(.*?)}/g, (_, key) => params[key] ?? '');
 }
 
-async function runAction(page: Page, action: ScenarioAction, params: Params, defaultTimeout: number, outputDir: string, rowIndex: number, actionIndex: number) {
+async function runAction(
+  page: Page,
+  action: ScenarioAction,
+  params: Params,
+  defaultTimeout: number,
+  outputDir: string,
+  rowIndex: number,
+  actionIndex: number
+) {
   const timeout = action.timeout ?? defaultTimeout;
+  const label = `${rowIndex + 1}-${actionIndex + 1}`;
+  console.log(`[${label}] ${action.action} 開始`);
   try {
     switch (action.action) {
       case 'goto':
@@ -92,6 +102,9 @@ async function runAction(page: Page, action: ScenarioAction, params: Params, def
       if (fs.existsSync(file)) {
         fs.chmodSync(file, 0o666);
       }
+      console.log(`[${label}] スクリーンショット保存: ${file}`);
+    } else {
+      console.log(`[${label}] 完了`);
     }
   } catch (e) {
     console.error('Action failed:', e);
@@ -111,9 +124,11 @@ export async function runScenario(
 
   fs.mkdirSync(outputBase, { recursive: true, mode: 0o777 });
   fs.chmodSync(outputBase, 0o777);
+  console.log(`Output directory: ${outputBase}`);
 
   for (let i = 0; i < records.length; i++) {
     const params = records[i];
+    console.log(`---- ${i + 1} 行目開始 ----`);
 
     const browser = await puppeteerLib.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
     const page = await browser.newPage();
@@ -126,6 +141,7 @@ export async function runScenario(
       console.error('Scenario aborted due to error');
     } finally {
       await browser.close();
+      console.log(`---- ${i + 1} 行目終了 ----`);
     }
   }
 }
