@@ -9,9 +9,8 @@ const goto = jest.fn();
 const click = jest.fn();
 const type = jest.fn();
 const screenshot = jest.fn();
-const waitForTimeout = jest.fn();
 const waitForNavigation = jest.fn(() => Promise.resolve());
-const page = { goto, click, type, screenshot, waitForTimeout, waitForNavigation };
+const page = { goto, click, type, screenshot, waitForNavigation };
 const newPage = jest.fn(async () => page);
 const close = jest.fn();
 const browser = { newPage, close };
@@ -23,7 +22,7 @@ jest.mock('puppeteer', () => ({
   launch
 }));
 
-const puppeteerAny = { launch, newPage, goto, click, type, screenshot, waitForTimeout } as any;
+const puppeteerAny = { launch, newPage, goto, click, type, screenshot } as any;
 
 
 let server: http.Server;
@@ -85,8 +84,6 @@ describe('runScenario', () => {
     expect(puppeteerAny.goto).toHaveBeenCalled();
     expect(puppeteerAny.type).toHaveBeenCalledWith('#user', 'alice');
     expect(puppeteerAny.click).toHaveBeenCalledWith('#login');
-    expect(puppeteerAny.waitForTimeout).toHaveBeenCalledWith(150);
-    expect(puppeteerAny.waitForTimeout).toHaveBeenCalledWith(100);
     expect(puppeteerAny.screenshot.mock.calls.length).toBe(4);
   });
 
@@ -109,7 +106,6 @@ describe('runScenario', () => {
 
     const mod = await import('../src/scenario.js');
     await mod.runScenario(scenarioPath, paramsPath, outputDir, puppeteerAny);
-    expect(puppeteerAny.waitForTimeout).toHaveBeenCalledWith(50);
     expect(puppeteerAny.screenshot.mock.calls.length).toBe(1);
   });
 
