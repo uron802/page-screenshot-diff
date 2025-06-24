@@ -5,8 +5,7 @@ services:
       dockerfile: Dockerfile
     volumes:
       - ./output:/usr/src/app/output
-      - ./env/diff.yml:/usr/src/app/env/diff.yml:ro
-      - ./env/screenshot.yml:/usr/src/app/env/screenshot.yml:ro
+      - ./env:/usr/src/app/env:ro
     environment:
       - NODE_ENV=production
     init: true

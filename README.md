@@ -73,6 +73,7 @@ actions:
     screenshot: step2
   - action: click
     selector: '#login'
+    wait: 500 # スクリーンショット前に待機
     screenshot: step3
   - action: wait
     wait: 1000 # ミリ秒
@@ -97,7 +98,7 @@ testuser2,30
 | action | 必須オプション | その他のオプション | 説明 |
 | ------ | ------------- | ------------------ | ---- |
 | `goto` | `url` | `timeout`, `screenshot` | 指定したURLへ遷移します |
-| `click` | `selector` | `timeout`, `screenshot` | CSSセレクタで指定した要素をクリックします。遷移を伴う場合`timeout`で待ち時間を上書きできます |
+| `click` | `selector` | `timeout`, `wait`, `screenshot` | CSSセレクタで指定した要素をクリックします。`wait`を指定するとクリック後にそのミリ秒分待ってからスクリーンショットを撮ります。遷移を伴う場合`timeout`で待ち時間を上書きできます |
 | `type` | `selector`, `text` | `screenshot` | テキストを入力します。`${変数}`でCSVの値を利用できます |
 | `wait` | `wait` | `screenshot` | 指定ミリ秒だけ待機します |
 

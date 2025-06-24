@@ -8,7 +8,7 @@ interface ScenarioAction {
   url?: string;
   selector?: string;
   text?: string;
-  /** waitアクションで指定する待機ミリ秒 */
+  /** waitアクションやclickアクションで使用する待機ミリ秒 */
   wait?: number;
   timeout?: number;
   /**
@@ -61,6 +61,9 @@ async function runAction(page: Page, action: ScenarioAction, params: Params, def
           page.waitForNavigation({ waitUntil: 'networkidle2', timeout }).catch(() => {}),
           page.click(action.selector)
         ]);
+        if (typeof action.wait === 'number') {
+          await (page as any).waitForTimeout(action.wait);
+        }
         break;
       case 'type':
         if (!action.selector || action.text === undefined) throw new Error('type requires selector and text');
