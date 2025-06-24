@@ -12,8 +12,15 @@ docker-compose up -d
 ```
 
 ### 依存ライブラリのインストール
-テスト実行やビルドの前に依存ライブラリをインストールします。
-Chrome のダウンロードを省略したい場合は次のようにします。
+Docker イメージ作成時に `npm install` と `npm run build` を自動で実行するため、
+ローカルで `node_modules` や `dist` を準備する必要はありません。
+`docker-compose exec app node dist/...` などのコマンドは、コンテナ内で作成された
+`dist` ディレクトリを利用するため、ローカルに `dist` がなくても実行できます。
+以前は `TEST_IN_DOCKER` 環境変数によりスクリプトが自動実行されない問題がありま
+したが、現在はデフォルトでこの変数を設定していないため、上記コマンドだけで実
+行できます。
+Chrome のダウンロードを省略したいなど、ローカルでテストを実行する場合のみ以下
+のコマンドを実行してください。
 ```bash
 PUPPETEER_SKIP_DOWNLOAD=1 npm install
 ```

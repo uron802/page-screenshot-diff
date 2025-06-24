@@ -24,14 +24,15 @@ WORKDIR /usr/src/app
 COPY package*.json ./
 COPY jest.config.js ./
 
-# Copy node_modules from host since npm install is failing due to network issues
-COPY node_modules ./node_modules
+# install dependencies inside container
+RUN PUPPETEER_SKIP_DOWNLOAD=1 npm install
 
-# Copy pre-built dist files
-COPY dist ./dist
 # テスト実行に必要なファイルをコピー
 COPY __tests__ ./__tests__
 COPY tsconfig.json ./
 COPY src/ ./src/
+
+# build TypeScript sources
+RUN npm run build
 
 CMD ["tail", "-f", "/dev/null"]
