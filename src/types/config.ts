@@ -24,7 +24,7 @@ export interface DiffConfig {
 // 設定ファイル読み込み関数
 export function loadConfig(): ScreenshotConfig {
   try {
-    const configPath = path.join(process.cwd(), 'screenshot.yml');
+    const configPath = path.join(process.cwd(), 'env', 'screenshot.yml');
     const file = fs.readFileSync(configPath, 'utf8');
     const config = yaml.parse(file) as ScreenshotConfig;
     
@@ -41,7 +41,7 @@ export function loadConfig(): ScreenshotConfig {
 
 export function loadDiffConfig(): DiffConfig {
   try {
-    const configPath = path.join(process.cwd(), 'diff.yml');
+    const configPath = path.join(process.cwd(), 'env', 'diff.yml');
     if (!fs.existsSync(configPath)) {
       throw new Error(`Config file not found: ${configPath}`);
     }
