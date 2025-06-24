@@ -89,7 +89,9 @@ async function runAction(page: Page, action: ScenarioAction, params: Params, def
           : `${rowIndex + 1}-${actionIndex + 1}`;
       const file = path.join(outputDir, `${name}.png`);
       await page.screenshot({ path: file, fullPage: true });
-      fs.chmodSync(file, 0o666);
+      if (fs.existsSync(file)) {
+        fs.chmodSync(file, 0o666);
+      }
     }
   } catch (e) {
     console.error('Action failed:', e);
