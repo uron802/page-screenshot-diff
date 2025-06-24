@@ -39,11 +39,13 @@ export function compareAndMergeImages(
 
     const diffDir = path.join(process.cwd(), 'output', 'diff');
     if (!fs.existsSync(diffDir)) {
-      fs.mkdirSync(diffDir, { recursive: true });
+      fs.mkdirSync(diffDir, { recursive: true, mode: 0o777 });
     }
+    fs.chmodSync(diffDir, 0o777);
     
     const mergedImagePath = path.join(diffDir, path.basename(imagePath1));
     fs.writeFileSync(mergedImagePath, PNG.sync.write(mergedImage));
+    fs.chmodSync(mergedImagePath, 0o666);
     
     return { isMatch: false, mergedImagePath };
     
@@ -61,11 +63,13 @@ export function writeLog(message: string) {
   
   // ディレクトリが無ければ作成
   if (!fs.existsSync(logDir)) {
-    fs.mkdirSync(logDir, { recursive: true });
+    fs.mkdirSync(logDir, { recursive: true, mode: 0o777 });
   }
+  fs.chmodSync(logDir, 0o777);
   
   // ログをファイルに追記
   fs.appendFileSync(logPath, `${new Date().toISOString()} - ${message}\n`);
+  fs.chmodSync(logPath, 0o666);
   // コンソールにも出力
   console.log(message);
 }

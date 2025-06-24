@@ -89,6 +89,7 @@ async function runAction(page: Page, action: ScenarioAction, params: Params, def
           : `${rowIndex + 1}-${actionIndex + 1}`;
       const file = path.join(outputDir, `${name}.png`);
       await page.screenshot({ path: file, fullPage: true });
+      fs.chmodSync(file, 0o666);
     }
   } catch (e) {
     console.error('Action failed:', e);
@@ -106,7 +107,8 @@ export async function runScenario(
   const records = parseCsv(paramsFile);
   const defaultTimeout = scenario.defaultTimeout ?? 10000;
 
-  fs.mkdirSync(outputBase, { recursive: true });
+  fs.mkdirSync(outputBase, { recursive: true, mode: 0o777 });
+  fs.chmodSync(outputBase, 0o777);
 
   for (let i = 0; i < records.length; i++) {
     const params = records[i];
