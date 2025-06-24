@@ -3,6 +3,11 @@ import * as path from 'path';
 import puppeteer, { Page } from 'puppeteer';
 import * as yaml from 'yaml';
 
+// 指定ミリ秒だけ待機するユーティリティ
+function sleep(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
 interface ScenarioAction {
   action: string;
   url?: string;
@@ -62,7 +67,7 @@ async function runAction(page: Page, action: ScenarioAction, params: Params, def
           page.click(action.selector)
         ]);
         if (typeof action.wait === 'number') {
-          await (page as any).waitForTimeout(action.wait);
+          await sleep(action.wait);
         }
         break;
       case 'type':
@@ -71,7 +76,7 @@ async function runAction(page: Page, action: ScenarioAction, params: Params, def
         break;
       case 'wait':
         if (typeof action.wait !== 'number') throw new Error('wait requires time');
-        await (page as any).waitForTimeout(action.wait);
+        await sleep(action.wait);
         break;
       default:
         throw new Error(`Unknown action: ${action.action}`);
