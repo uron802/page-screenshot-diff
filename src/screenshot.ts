@@ -3,13 +3,21 @@ import * as fs from 'fs';
 import * as path from 'path';
 import puppeteer from 'puppeteer';
 
+function connectOrLaunch() {
+  const ws = process.env.PUPPETEER_WS_ENDPOINT || process.env.WS_ENDPOINT;
+  if (ws) {
+    return puppeteer.connect({ browserWSEndpoint: ws });
+  }
+  return puppeteer.launch({
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+  });
+}
+
 // テスト用にエクスポート
 export async function takeScreenshot(url: string, outputPath: string): Promise<void> {
   let browser = null;
   try {
-    browser = await puppeteer.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    });
+    browser = await connectOrLaunch();
     const page = await browser.newPage();
     await page.goto(url, { 
       waitUntil: 'networkidle2',

@@ -22,5 +22,6 @@ export const newPage = jest.fn(async () => page);
 export const close = jest.fn();
 export const browser = { newPage, close };
 export const launch = jest.fn(async () => browser);
+export const connect = jest.fn(async () => browser);
 
-export default { launch };
+export default { launch, connect };
