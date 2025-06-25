@@ -78,7 +78,7 @@ describe('runScenario', () => {
     fs.mkdirSync(outputDir);
 
     const mod = await import('../src/scenario.js');
-    await mod.runScenario(scenarioPath, paramsPath, outputDir, puppeteerAny);
+    await mod.runScenario(scenarioPath, paramsPath, outputDir, true, puppeteerAny);
     expect(launch).toHaveBeenCalled();
     expect(puppeteerAny.newPage).toHaveBeenCalled();
     expect(puppeteerAny.goto).toHaveBeenCalled();
@@ -105,7 +105,7 @@ describe('runScenario', () => {
     fs.mkdirSync(outputDir);
 
     const mod = await import('../src/scenario.js');
-    await mod.runScenario(scenarioPath, paramsPath, outputDir, puppeteerAny);
+    await mod.runScenario(scenarioPath, paramsPath, outputDir, true, puppeteerAny);
     expect(puppeteerAny.screenshot.mock.calls.length).toBe(1);
   });
 
@@ -120,6 +120,20 @@ describe('runScenario', () => {
     const mod = await import('../src/scenario.js');
     const outDir = path.join(tmp, 'out');
     const result = mod.parseArgs(['--scenario', scenarioPath, '--params', paramsPath, '--output', outDir]);
-    expect(result).toEqual({ scenarioPath, paramsPath, outputDir: outDir });
+    expect(result).toEqual({ scenarioPath, paramsPath, outputDir: outDir, headless: true });
+  });
+
+  it('--headlessオプションをfalseで解釈できる', async () => {
+    const tmp = fs.mkdtempSync(path.join(process.cwd(), 'scenario-cli-h-'));
+    tmpDirs.push(tmp);
+    const scenarioPath = path.join(tmp, 'sc.yml');
+    const paramsPath = path.join(tmp, 'pr.csv');
+    fs.writeFileSync(scenarioPath, yaml.stringify({ actions: [] }));
+    fs.writeFileSync(paramsPath, 'a\n1\n');
+
+    const mod = await import('../src/scenario.js');
+    const outDir = path.join(tmp, 'out');
+    const result = mod.parseArgs(['--scenario', scenarioPath, '--params', paramsPath, '--output', outDir, '--headless', 'false']);
+    expect(result).toEqual({ scenarioPath, paramsPath, outputDir: outDir, headless: false });
   });
 });
