@@ -21,6 +21,15 @@ function gatherPngFiles(dir: string): string[] {
 }
 
 export function diffScenario(oldDir: string, newDir: string, threshold = 0.1): boolean {
+  if (!fs.existsSync(oldDir)) {
+    console.error(`ディレクトリが存在しません: ${oldDir}`);
+    return false;
+  }
+  if (!fs.existsSync(newDir)) {
+    console.error(`ディレクトリが存在しません: ${newDir}`);
+    return false;
+  }
+
   let allMatch = true;
   const oldFiles = gatherPngFiles(oldDir);
   for (const oldFile of oldFiles) {
