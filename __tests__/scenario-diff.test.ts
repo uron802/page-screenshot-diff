@@ -70,4 +70,15 @@ describe('diffScenario', () => {
     expect(output).toContain('一致');
     logSpy.mockRestore();
   });
+
+  it('存在しないディレクトリが指定された場合はfalseを返す', () => {
+    const missingDir = path.join(process.cwd(), 'no-such-dir');
+    const dir2 = fs.mkdtempSync(path.join(process.cwd(), 'sdiff-missing-'));
+    tmpDirs.push(dir2);
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    const result = mod.diffScenario(missingDir, dir2, 0.1);
+    expect(result).toBe(false);
+    expect(errorSpy).toHaveBeenCalled();
+    errorSpy.mockRestore();
+  });
 });

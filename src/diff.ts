@@ -1,6 +1,7 @@
 import { loadDiffConfig } from './types/config.js';
 import * as fs from 'fs';
 import * as path from 'path';
+import { pathToFileURL } from 'url';
 import { PNG } from 'pngjs';
 import pixelmatch from 'pixelmatch';
 
@@ -123,9 +124,14 @@ export function main() {
   }
 }
 
-// テスト環境ではない場合のみmain関数を実行
+// コマンドラインから直接呼び出された場合のみmain関数を実行
 // Jest環境やDockerテスト環境では実行しない
-if (process.env.NODE_ENV !== 'test' && !process.env.JEST_WORKER_ID && !process.env.TEST_IN_DOCKER) {
+if (
+  import.meta.url === pathToFileURL(process.argv[1]).href &&
+  process.env.NODE_ENV !== 'test' &&
+  !process.env.JEST_WORKER_ID &&
+  !process.env.TEST_IN_DOCKER
+) {
   main();
 }
 
