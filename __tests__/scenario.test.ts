@@ -15,14 +15,16 @@ const newPage = jest.fn(async () => page);
 const close = jest.fn();
 const browser = { newPage, close };
 const launch = jest.fn(async () => browser);
+const connect = jest.fn(async () => browser);
 
 jest.mock('puppeteer', () => ({
   __esModule: true,
-  default: { launch },
-  launch
+  default: { launch, connect },
+  launch,
+  connect
 }));
 
-const puppeteerAny = { launch, newPage, goto, click, type, screenshot } as any;
+const puppeteerAny = { launch, connect, newPage, goto, click, type, screenshot } as any;
 
 
 let server: http.Server;
@@ -107,6 +109,25 @@ describe('runScenario', () => {
     const mod = await import('../src/scenario.js');
     await mod.runScenario(scenarioPath, paramsPath, outputDir, true, puppeteerAny);
     expect(puppeteerAny.screenshot.mock.calls.length).toBe(1);
+  });
+
+  it('PUPPETEER_WS_ENDPOINTがある場合connectを使用する', async () => {
+    process.env.PUPPETEER_WS_ENDPOINT = 'ws://dummy';
+    const tmp = fs.mkdtempSync(path.join(process.cwd(), 'scenario-connect-'));
+    tmpDirs.push(tmp);
+    const scenarioPath = path.join(tmp, 'scenario.yml');
+    const paramsPath = path.join(tmp, 'params.csv');
+    const outputDir = path.join(tmp, 'out');
+
+    fs.writeFileSync(scenarioPath, yaml.stringify({ actions: [] }));
+    fs.writeFileSync(paramsPath, 'x\n1\n');
+    fs.mkdirSync(outputDir);
+
+    const mod = await import('../src/scenario.js');
+    await mod.runScenario(scenarioPath, paramsPath, outputDir, true, puppeteerAny);
+    expect(connect).toHaveBeenCalled();
+    expect(launch).not.toHaveBeenCalled();
+    delete process.env.PUPPETEER_WS_ENDPOINT;
   });
 
   it('CLIで--outputオプションを解釈できる', async () => {

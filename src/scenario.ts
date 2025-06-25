@@ -1,6 +1,17 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import puppeteer, { Page } from 'puppeteer';
+
+function connectOrLaunch(puppeteerLib: typeof puppeteer, headless: boolean) {
+  const ws = process.env.PUPPETEER_WS_ENDPOINT || process.env.WS_ENDPOINT;
+  if (ws) {
+    return puppeteerLib.connect({ browserWSEndpoint: ws });
+  }
+  return puppeteerLib.launch({
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    headless
+  });
+}
 import * as yaml from 'yaml';
 
 // 指定ミリ秒だけ待機するユーティリティ
@@ -131,10 +142,7 @@ export async function runScenario(
     const params = records[i];
     console.log(`---- ${i + 1} 行目開始 ----`);
 
-    const browser = await puppeteerLib.launch({
-      args: ['--no-sandbox', '--disable-setuid-sandbox'],
-      headless
-    });
+    const browser = await connectOrLaunch(puppeteerLib, headless);
     const page = await browser.newPage();
     try {
       for (let j = 0; j < scenario.actions.length; j++) {
