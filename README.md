@@ -55,10 +55,11 @@ docker-compose exec app node dist/screenshot.js
 YMLで定義したシナリオとCSVのパラメータを組み合わせてアクションごとに画面を保存します。
 
 ```bash
-docker-compose exec app node dist/scenario.js --scenario env/scenario.yml --params env/params.csv --output output/run1
+docker-compose exec app node dist/scenario.js --scenario env/scenario.yml --params env/params.csv --output output/run1 [--headless false]
 ```
 
 `--output` (または `-o`) オプションで保存先ディレクトリを指定します。
+`--headless` に `false` を指定するとブラウザを表示したまま実行できます。
 実行中は各アクションの結果が順次コンソールに表示されます。
 
 `scenario.yml`例:

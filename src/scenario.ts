@@ -116,6 +116,7 @@ export async function runScenario(
   scenarioFile: string,
   paramsFile: string,
   outputBase: string,
+  headless = true,
   puppeteerLib: typeof puppeteer = puppeteer
 ) {
   const scenario = yaml.parse(fs.readFileSync(scenarioFile, 'utf8')) as Scenario;
@@ -130,7 +131,10 @@ export async function runScenario(
     const params = records[i];
     console.log(`---- ${i + 1} 行目開始 ----`);
 
-    const browser = await puppeteerLib.launch({ args: ['--no-sandbox', '--disable-setuid-sandbox'] });
+    const browser = await puppeteerLib.launch({
+      args: ['--no-sandbox', '--disable-setuid-sandbox'],
+      headless
+    });
     const page = await browser.newPage();
     try {
       for (let j = 0; j < scenario.actions.length; j++) {
@@ -150,6 +154,7 @@ export function parseArgs(args: string[]) {
   let scenarioPath = path.join('env', 'scenario.yml');
   let paramsPath = path.join('env', 'params.csv');
   let outputDir = path.join('output', 'scenario');
+  let headless = true;
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
@@ -164,19 +169,33 @@ export function parseArgs(args: string[]) {
       case '-o':
         outputDir = args[++i];
         break;
+      case '--headless':
+        {
+          const value = args[i + 1];
+          if (value && !value.startsWith('--')) {
+            headless = value !== 'false';
+            i++;
+          } else {
+            headless = true;
+          }
+        }
+        break;
       default:
         if (arg.startsWith('--output=')) {
           outputDir = arg.split('=')[1];
+        } else if (arg.startsWith('--headless=')) {
+          const value = arg.split('=')[1];
+          headless = value !== 'false';
         }
         break;
     }
   }
-  return { scenarioPath, paramsPath, outputDir };
+  return { scenarioPath, paramsPath, outputDir, headless };
 }
 
 export async function main() {
-  const { scenarioPath, paramsPath, outputDir } = parseArgs(process.argv.slice(2));
-  await runScenario(scenarioPath, paramsPath, outputDir);
+  const { scenarioPath, paramsPath, outputDir, headless } = parseArgs(process.argv.slice(2));
+  await runScenario(scenarioPath, paramsPath, outputDir, headless);
 }
 
 if (process.env.NODE_ENV !== 'test' && !process.env.JEST_WORKER_ID && !process.env.TEST_IN_DOCKER) {
