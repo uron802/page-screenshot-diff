@@ -26,10 +26,25 @@ PUPPETEER_SKIP_DOWNLOAD=1 npm install
 ```
 
 ### リモートChromeへの接続
-`--headless false` を指定してブラウザを表示したまま操作したい場合は、ホスト側で Chrome をリモートデバッグモードで起動しておくとコンテナから既存のブラウザに接続できます。
+`--headless false` を指定してブラウザを表示したまま操作したい場合は、ホスト側で Chrome をリモートデバッグモードで起動しておきます。PowerShell でも bash でも起動できます。
 
+#### PowerShell の例
+```powershell
+$TMP = "$env:TEMP\chrome_debug_$([guid]::NewGuid())"
+& "$Env:ProgramFiles\Google\Chrome\Application\chrome.exe" `
+   --remote-debugging-port=9222 `
+   --user-data-dir="$TMP" `
+   about:blank
+```
+
+#### bash の例
 ```bash
-chrome --remote-debugging-port=9222
+# 空のユーザーデータディレクトリを用意
+TMP=$(mktemp -d -t chrome-debug-XXXX)
+google-chrome \
+  --remote-debugging-port=9222 \
+  --user-data-dir="$TMP" \
+  about:blank
 ```
 
 起動後、 `http://localhost:9222/json/version` で表示される `webSocketDebuggerUrl` を `PUPPETEER_WS_ENDPOINT` 環境変数に設定してください。
