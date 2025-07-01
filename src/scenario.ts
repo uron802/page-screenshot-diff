@@ -2,11 +2,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import puppeteer, { Page } from 'puppeteer';
 
-function connectOrLaunch(puppeteerLib: typeof puppeteer, headless: boolean) {
-  const ws = process.env.PUPPETEER_WS_ENDPOINT || process.env.WS_ENDPOINT;
-  if (ws) {
-    return puppeteerLib.connect({ browserWSEndpoint: ws });
-  }
+function launchBrowser(puppeteerLib: typeof puppeteer, headless: boolean) {
   return puppeteerLib.launch({
     args: ['--no-sandbox', '--disable-setuid-sandbox'],
     headless
@@ -142,7 +138,7 @@ export async function runScenario(
     const params = records[i];
     console.log(`---- ${i + 1} 行目開始 ----`);
 
-    const browser = await connectOrLaunch(puppeteerLib, headless);
+    const browser = await launchBrowser(puppeteerLib, headless);
     const page = await browser.newPage();
     try {
       for (let j = 0; j < scenario.actions.length; j++) {
