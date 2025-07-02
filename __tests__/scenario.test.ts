@@ -111,7 +111,7 @@ describe('runScenario', () => {
     expect(puppeteerAny.screenshot.mock.calls.length).toBe(1);
   });
 
-  it('PUPPETEER_WS_ENDPOINTがある場合connectを使用する', async () => {
+  it('PUPPETEER_WS_ENDPOINTが指定されてもlaunchを使用する', async () => {
     process.env.PUPPETEER_WS_ENDPOINT = 'ws://dummy';
     const tmp = fs.mkdtempSync(path.join(process.cwd(), 'scenario-connect-'));
     tmpDirs.push(tmp);
@@ -125,8 +125,8 @@ describe('runScenario', () => {
 
     const mod = await import('../src/scenario.js');
     await mod.runScenario(scenarioPath, paramsPath, outputDir, true, puppeteerAny);
-    expect(connect).toHaveBeenCalled();
-    expect(launch).not.toHaveBeenCalled();
+    expect(connect).not.toHaveBeenCalled();
+    expect(launch).toHaveBeenCalled();
     delete process.env.PUPPETEER_WS_ENDPOINT;
   });
 
