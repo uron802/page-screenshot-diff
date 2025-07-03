@@ -26,12 +26,22 @@ export function loadConfig(): ScreenshotConfig {
   try {
     const configPath = path.join(process.cwd(), 'env', 'screenshot.yml');
     const file = fs.readFileSync(configPath, 'utf8');
-    const config = yaml.parse(file) as ScreenshotConfig;
-    
-    if (!config || !config.output || !config.output.subdirectory || !Array.isArray(config.urls)) {
+    const parsed = yaml.parse(file) as any;
+
+    if (!parsed || !parsed.output || parsed.output.subdirectory === undefined || !Array.isArray(parsed.urls)) {
       throw new Error('Invalid config format');
     }
-    
+
+    const config: ScreenshotConfig = {
+      urls: parsed.urls.map((u: any) => ({
+        url: String(u.url),
+        filename: String(u.filename)
+      })),
+      output: {
+        subdirectory: String(parsed.output.subdirectory)
+      }
+    };
+
     return config;
   } catch (error) {
     console.error('Config loading error:', error);
