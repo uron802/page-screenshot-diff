@@ -111,7 +111,7 @@ describe('runScenario', () => {
     expect(puppeteerAny.screenshot.mock.calls.length).toBe(1);
   });
 
-  it('PUPPETEER_WS_ENDPOINTがある場合connectを使用する', async () => {
+  it('PUPPETEER_WS_ENDPOINTが指定されてもlaunchを使用する', async () => {
     process.env.PUPPETEER_WS_ENDPOINT = 'ws://dummy';
     const tmp = fs.mkdtempSync(path.join(process.cwd(), 'scenario-connect-'));
     tmpDirs.push(tmp);
@@ -125,8 +125,8 @@ describe('runScenario', () => {
 
     const mod = await import('../src/scenario.js');
     await mod.runScenario(scenarioPath, paramsPath, outputDir, true, puppeteerAny);
-    expect(connect).toHaveBeenCalled();
-    expect(launch).not.toHaveBeenCalled();
+    expect(connect).not.toHaveBeenCalled();
+    expect(launch).toHaveBeenCalled();
     delete process.env.PUPPETEER_WS_ENDPOINT;
   });
 
@@ -141,7 +141,7 @@ describe('runScenario', () => {
     const mod = await import('../src/scenario.js');
     const outDir = path.join(tmp, 'out');
     const result = mod.parseArgs(['--scenario', scenarioPath, '--params', paramsPath, '--output', outDir]);
-    expect(result).toEqual({ scenarioPath, paramsPath, outputDir: outDir, headless: true });
+    expect(result).toEqual({ scenarioPath, paramsPath, outputDir: outDir, headless: true, concurrency: 1 });
   });
 
   it('--headlessオプションをfalseで解釈できる', async () => {
@@ -155,6 +155,12 @@ describe('runScenario', () => {
     const mod = await import('../src/scenario.js');
     const outDir = path.join(tmp, 'out');
     const result = mod.parseArgs(['--scenario', scenarioPath, '--params', paramsPath, '--output', outDir, '--headless', 'false']);
-    expect(result).toEqual({ scenarioPath, paramsPath, outputDir: outDir, headless: false });
+    expect(result).toEqual({ scenarioPath, paramsPath, outputDir: outDir, headless: false, concurrency: 1 });
+  });
+
+  it('--concurrencyオプションを解釈できる', async () => {
+    const mod = await import('../src/scenario.js');
+    const result = mod.parseArgs(['--concurrency', '3']);
+    expect(result.concurrency).toBe(3);
   });
 });

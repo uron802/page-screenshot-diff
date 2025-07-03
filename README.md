@@ -25,30 +25,6 @@ Chrome のダウンロードを省略したいなど、ローカルでテスト�
 PUPPETEER_SKIP_DOWNLOAD=1 npm install
 ```
 
-### リモートChromeへの接続
-`--headless false` を指定してブラウザを表示したまま操作したい場合は、ホスト側で Chrome をリモートデバッグモードで起動しておきます。PowerShell でも bash でも起動できます。
-
-#### PowerShell の例
-```powershell
-$TMP = "$env:TEMP\chrome_debug_$([guid]::NewGuid())"
-& "$Env:ProgramFiles\Google\Chrome\Application\chrome.exe" `
-   --remote-debugging-port=9222 `
-   --user-data-dir="$TMP" `
-   about:blank
-```
-
-#### bash の例
-```bash
-# 空のユーザーデータディレクトリを用意
-TMP=$(mktemp -d -t chrome-debug-XXXX)
-google-chrome \
-  --remote-debugging-port=9222 \
-  --user-data-dir="$TMP" \
-  about:blank
-```
-
-起動後、 `http://localhost:9222/json/version` で表示される `webSocketDebuggerUrl` を `PUPPETEER_WS_ENDPOINT` 環境変数に設定してください。
-
 ### 設定
 `env/screenshot.yml`:
 ```
@@ -72,30 +48,20 @@ threshold: 0.1 # 実行時オプションで変更可
 ### スクリーンショットの撮影
 
 ```
-docker-compose exec app node dist/screenshot.js
+docker-compose exec app node dist/screenshot.js [--concurrency 3]
 ```
-
-リモートChromeを利用する場合の例 (事前にホスト側でリモートデバッグモードの Chrome を起動しておく必要があります):
-
-```bash
-PUPPETEER_WS_ENDPOINT=ws://host.docker.internal:9222/devtools/browser/<id> docker-compose exec app node dist/screenshot.js
-```
+`--concurrency` (または `-c`) で同時に実行するリクエスト数を指定できます。省略時は1件ずつ順番に処理します。
 
 ### シナリオに沿ったスクリーンショット
 YMLで定義したシナリオとCSVのパラメータを組み合わせてアクションごとに画面を保存します。
 
 ```bash
-docker-compose exec app node dist/scenario.js --scenario env/scenario.yml --params env/params.csv --output output/run1 [--headless false]
-```
-
-リモートChromeを利用する場合の例 (事前にホスト側でリモートデバッグモードの Chrome を起動しておく必要があります):
-
-```bash
-PUPPETEER_WS_ENDPOINT=ws://host.docker.internal:9222/devtools/browser/<id> docker-compose exec app node dist/scenario.js --scenario env/scenario.yml --params env/params.csv --output output/run1
+docker-compose exec app node dist/scenario.js --scenario env/scenario.yml --params env/params.csv --output output/run1 [--headless false] [--concurrency 2]
 ```
 
 `--output` (または `-o`) オプションで保存先ディレクトリを指定します。
 `--headless` に `false` を指定するとブラウザを表示したまま実行できます。
+`--concurrency` (または `-c`) を指定すると、同時に実行するシナリオ数を制御できます。
 実行中は各アクションの結果が順次コンソールに表示されます。
 
 `scenario.yml`例:
