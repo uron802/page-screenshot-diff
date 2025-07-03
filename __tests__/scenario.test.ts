@@ -141,7 +141,7 @@ describe('runScenario', () => {
     const mod = await import('../src/scenario.js');
     const outDir = path.join(tmp, 'out');
     const result = mod.parseArgs(['--scenario', scenarioPath, '--params', paramsPath, '--output', outDir]);
-    expect(result).toEqual({ scenarioPath, paramsPath, outputDir: outDir, headless: true });
+    expect(result).toEqual({ scenarioPath, paramsPath, outputDir: outDir, headless: true, concurrency: 1 });
   });
 
   it('--headlessオプションをfalseで解釈できる', async () => {
@@ -155,6 +155,12 @@ describe('runScenario', () => {
     const mod = await import('../src/scenario.js');
     const outDir = path.join(tmp, 'out');
     const result = mod.parseArgs(['--scenario', scenarioPath, '--params', paramsPath, '--output', outDir, '--headless', 'false']);
-    expect(result).toEqual({ scenarioPath, paramsPath, outputDir: outDir, headless: false });
+    expect(result).toEqual({ scenarioPath, paramsPath, outputDir: outDir, headless: false, concurrency: 1 });
+  });
+
+  it('--concurrencyオプションを解釈できる', async () => {
+    const mod = await import('../src/scenario.js');
+    const result = mod.parseArgs(['--concurrency', '3']);
+    expect(result.concurrency).toBe(3);
   });
 });
