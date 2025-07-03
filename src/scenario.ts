@@ -124,7 +124,8 @@ export async function runScenario(
   paramsFile: string,
   outputBase: string,
   headless = true,
-  puppeteerLib: typeof puppeteer = puppeteer
+  puppeteerLib: typeof puppeteer = puppeteer,
+  concurrency = 1
 ) {
   const scenario = yaml.parse(fs.readFileSync(scenarioFile, 'utf8')) as Scenario;
   const records = parseCsv(paramsFile);
@@ -134,10 +135,9 @@ export async function runScenario(
   fs.chmodSync(outputBase, 0o777);
   console.log(`Output directory: ${outputBase}`);
 
-  for (let i = 0; i < records.length; i++) {
+  async function executeRecord(i: number) {
     const params = records[i];
     console.log(`---- ${i + 1} 行目開始 ----`);
-
     const browser = await launchBrowser(puppeteerLib, headless);
     const page = await browser.newPage();
     try {
@@ -152,6 +152,15 @@ export async function runScenario(
       console.log(`---- ${i + 1} 行目終了 ----`);
     }
   }
+
+  let index = 0;
+  while (index < records.length) {
+    const batch: Promise<void>[] = [];
+    for (let c = 0; c < concurrency && index < records.length; c++, index++) {
+      batch.push(executeRecord(index));
+    }
+    await Promise.all(batch);
+  }
 }
 
 export function parseArgs(args: string[]) {
@@ -159,6 +168,7 @@ export function parseArgs(args: string[]) {
   let paramsPath = path.join('env', 'params.csv');
   let outputDir = path.join('output', 'scenario');
   let headless = true;
+  let concurrency = 1;
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
@@ -184,22 +194,37 @@ export function parseArgs(args: string[]) {
           }
         }
         break;
+      case '--concurrency':
+      case '-c':
+        {
+          const value = args[i + 1];
+          if (value && !value.startsWith('--')) {
+            concurrency = parseInt(value, 10);
+            i++;
+          }
+        }
+        break;
       default:
         if (arg.startsWith('--output=')) {
           outputDir = arg.split('=')[1];
         } else if (arg.startsWith('--headless=')) {
           const value = arg.split('=')[1];
           headless = value !== 'false';
+        } else if (arg.startsWith('--concurrency=')) {
+          concurrency = parseInt(arg.split('=')[1], 10);
         }
         break;
     }
   }
-  return { scenarioPath, paramsPath, outputDir, headless };
+  if (!Number.isFinite(concurrency) || concurrency <= 0) {
+    concurrency = 1;
+  }
+  return { scenarioPath, paramsPath, outputDir, headless, concurrency };
 }
 
 export async function main() {
-  const { scenarioPath, paramsPath, outputDir, headless } = parseArgs(process.argv.slice(2));
-  await runScenario(scenarioPath, paramsPath, outputDir, headless);
+  const { scenarioPath, paramsPath, outputDir, headless, concurrency } = parseArgs(process.argv.slice(2));
+  await runScenario(scenarioPath, paramsPath, outputDir, headless, puppeteer, concurrency);
 }
 
 if (process.env.NODE_ENV !== 'test' && !process.env.JEST_WORKER_ID && !process.env.TEST_IN_DOCKER) {
