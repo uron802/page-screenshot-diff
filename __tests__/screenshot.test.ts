@@ -20,4 +20,16 @@ describe('Screenshot functionality (simplified)', () => {
       expect(true).toBe(true);
     });
   });
+
+  describe('parseArgs', () => {
+    it('--deviceオプションを解析できる', () => {
+      const result = screenshotModule.parseArgs(['--device', 'iPhone 13']);
+      expect(result.device).toBe('iPhone 13');
+    });
+
+    it('--device=形式でも解析できる', () => {
+      const result = screenshotModule.parseArgs(['--device=iPhone 13']);
+      expect(result.device).toBe('iPhone 13');
+    });
+  });
 });

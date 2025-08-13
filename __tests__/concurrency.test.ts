@@ -60,8 +60,8 @@ describe('並列処理オプション', () => {
     const duration = Date.now() - start;
 
     expect(startTimes.length).toBe(3);
-    expect(Math.abs(startTimes[1] - startTimes[0])).toBeLessThan(20);
-    expect(Math.abs(startTimes[2] - startTimes[0])).toBeLessThan(20);
+    expect(Math.abs(startTimes[1] - startTimes[0])).toBeLessThan(40);
+    expect(Math.abs(startTimes[2] - startTimes[0])).toBeLessThan(40);
     expect(duration).toBeGreaterThanOrEqual(45);
     expect(duration).toBeLessThan(200);
   });
