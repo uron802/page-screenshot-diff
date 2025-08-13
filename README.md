@@ -48,9 +48,11 @@ threshold: 0.1 # 実行時オプションで変更可
 ### スクリーンショットの撮影
 
 ```
-docker-compose exec app node dist/screenshot.js [--concurrency 3]
+docker-compose exec app node dist/screenshot.js [--concurrency 3] [--device "iPhone 13"]
 ```
 `--concurrency` (または `-c`) で同時に実行するリクエスト数を指定できます。省略時は1件ずつ順番に処理します。
+`--device` で [Puppeteer が提供する端末名](https://pptr.dev/api/puppeteer.knownDevices) を指定すると、
+該当端末の設定をエミュレートしてスクリーンショットを撮影します。
 
 ### シナリオに沿ったスクリーンショット
 YMLで定義したシナリオとCSVのパラメータを組み合わせてアクションごとに画面を保存します。

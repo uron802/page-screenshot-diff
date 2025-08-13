@@ -11,6 +11,7 @@ function launchBrowser() {
 
 export function parseArgs(args: string[]) {
   let concurrency = 1;
+  let device: string | undefined;
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
     if (arg === '--concurrency' || arg === '-c') {
@@ -21,24 +22,33 @@ export function parseArgs(args: string[]) {
       }
     } else if (arg.startsWith('--concurrency=')) {
       concurrency = parseInt(arg.split('=')[1], 10);
+    } else if (arg === '--device') {
+      const value = args[i + 1];
+      if (value && !value.startsWith('--')) {
+        device = value;
+        i++;
+      }
+    } else if (arg.startsWith('--device=')) {
+      device = arg.split('=')[1];
     }
   }
   if (!Number.isFinite(concurrency) || concurrency <= 0) {
     concurrency = 1;
   }
-  return { concurrency };
+  return { concurrency, device };
 }
 
 export async function captureBatch(
   batch: { url: string; filename: string }[],
   outputDir: string,
-  screenshotFn: typeof takeScreenshot = takeScreenshot
+  screenshotFn: typeof takeScreenshot = takeScreenshot,
+  device?: string
 ) {
   await Promise.all(
     batch.map(async urlConfig => {
       try {
         const outputPath = path.join(outputDir, `${urlConfig.filename}.png`);
-        await screenshotFn(urlConfig.url, outputPath);
+        await screenshotFn(urlConfig.url, outputPath, device);
         fs.chmodSync(outputPath, 0o666);
         console.log(`Successfully captured screenshot for: ${urlConfig.url}`);
       } catch (error) {
@@ -49,12 +59,19 @@ export async function captureBatch(
 }
 
 // テスト用にエクスポート
-export async function takeScreenshot(url: string, outputPath: string): Promise<void> {
+export async function takeScreenshot(url: string, outputPath: string, device?: string): Promise<void> {
   let browser = null;
   try {
     browser = await launchBrowser();
     const page = await browser.newPage();
-    await page.goto(url, { 
+    if (device) {
+      const descriptor = (puppeteer as any).devices?.[device];
+      if (!descriptor) {
+        throw new Error(`Unknown device: ${device}`);
+      }
+      await page.emulate(descriptor);
+    }
+    await page.goto(url, {
       waitUntil: 'networkidle2',
       timeout: 30000
     });
@@ -71,7 +88,7 @@ export async function takeScreenshot(url: string, outputPath: string): Promise<v
 
 // テスト用にエクスポート
 export async function main(): Promise<void> {
-  const { concurrency } = parseArgs(process.argv.slice(2));
+  const { concurrency, device } = parseArgs(process.argv.slice(2));
   const config = loadConfig();
   
   try {
@@ -87,7 +104,7 @@ export async function main(): Promise<void> {
     const queue = [...config.urls];
     while (queue.length) {
       const batch = queue.splice(0, concurrency);
-      await captureBatch(batch, outputDir);
+      await captureBatch(batch, outputDir, takeScreenshot, device);
     }
   } catch (error) {
     console.error('Fatal error:', error);
