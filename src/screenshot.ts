@@ -89,6 +89,7 @@ export async function takeScreenshot(url: string, outputPath: string, device?: s
 // テスト用にエクスポート
 export async function main(): Promise<void> {
   const { concurrency, device } = parseArgs(process.argv.slice(2));
+  console.log('指定されたオプション:', { concurrency, device });
   const config = loadConfig();
   
   try {
