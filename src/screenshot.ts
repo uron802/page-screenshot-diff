@@ -1,7 +1,7 @@
 import { loadConfig } from './types/config.js';
 import * as fs from 'fs';
 import * as path from 'path';
-import puppeteer from 'puppeteer';
+import puppeteer, { KnownDevices } from 'puppeteer';
 
 function launchBrowser() {
   return puppeteer.launch({
@@ -65,7 +65,7 @@ export async function takeScreenshot(url: string, outputPath: string, device?: s
     browser = await launchBrowser();
     const page = await browser.newPage();
     if (device) {
-      const descriptor = (puppeteer as any).devices?.[device];
+      const descriptor = KnownDevices[device as keyof typeof KnownDevices];
       if (!descriptor) {
         throw new Error(`Unknown device: ${device}`);
       }
