@@ -15,23 +15,42 @@ export function compareAndMergeImages(
     const img1 = PNG.sync.read(fs.readFileSync(imagePath1));
     const img2 = PNG.sync.read(fs.readFileSync(imagePath2));
 
-    const numDiffPixels = pixelmatch(
-      img1.data,
-      img2.data,
-      null,
-      img1.width,
-      img1.height,
-      { threshold }
-    );
-    
-    if (numDiffPixels === 0) {
-      return { isMatch: true };
+    // 画像サイズが異なる場合は比較をスキップし、そのままマージ処理に進む
+    let numDiffPixels = 0;
+    if (img1.width === img2.width && img1.height === img2.height) {
+      numDiffPixels = pixelmatch(
+        img1.data,
+        img2.data,
+        null,
+        img1.width,
+        img1.height,
+        { threshold }
+      );
+      
+      if (numDiffPixels === 0) {
+        return { isMatch: true };
+      }
+    } else {
+      // サイズが異なる場合は不一致として扱う
+      numDiffPixels = 1;
     }
     
+    // マージ画像のサイズを計算（両画像を横に並べて表示できる最小サイズ）
+    const maxHeight = Math.max(img1.height, img2.height);
+    const totalWidth = img1.width + img2.width;
+    
     const mergedImage = new PNG({
-      width: img1.width * 2,
-      height: img1.height
+      width: totalWidth,
+      height: maxHeight
     });
+
+    // 背景を白で塗りつぶし（透明な部分を見やすくするため）
+    for (let i = 0; i < mergedImage.data.length; i += 4) {
+      mergedImage.data[i] = 255;     // R
+      mergedImage.data[i + 1] = 255; // G
+      mergedImage.data[i + 2] = 255; // B
+      mergedImage.data[i + 3] = 255; // A
+    }
 
     // 左側に1つ目の画像をコピー
     PNG.bitblt(img1, mergedImage, 0, 0, img1.width, img1.height, 0, 0);

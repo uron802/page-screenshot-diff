@@ -52,8 +52,8 @@ describe('compareAndMergeImages with different sized images', () => {
     if (result.mergedImagePath) {
       expect(fs.existsSync(result.mergedImagePath)).toBe(true);
       const mergedImage = PNG.sync.read(fs.readFileSync(result.mergedImagePath));
-      expect(mergedImage.width).toBeGreaterThan(0);
-      expect(mergedImage.height).toBeGreaterThan(0);
+      expect(mergedImage.width).toBe(250); // 100 + 150
+      expect(mergedImage.height).toBe(50);  // max(50, 50)
     }
   });
 
@@ -74,8 +74,8 @@ describe('compareAndMergeImages with different sized images', () => {
     if (result.mergedImagePath) {
       expect(fs.existsSync(result.mergedImagePath)).toBe(true);
       const mergedImage = PNG.sync.read(fs.readFileSync(result.mergedImagePath));
-      expect(mergedImage.width).toBeGreaterThan(0);
-      expect(mergedImage.height).toBeGreaterThan(0);
+      expect(mergedImage.width).toBe(200); // 100 + 100
+      expect(mergedImage.height).toBe(100); // max(50, 100)
     }
   });
 
@@ -96,8 +96,43 @@ describe('compareAndMergeImages with different sized images', () => {
     if (result.mergedImagePath) {
       expect(fs.existsSync(result.mergedImagePath)).toBe(true);
       const mergedImage = PNG.sync.read(fs.readFileSync(result.mergedImagePath));
-      expect(mergedImage.width).toBeGreaterThan(0);
-      expect(mergedImage.height).toBeGreaterThan(0);
+      expect(mergedImage.width).toBe(200); // 80 + 120
+      expect(mergedImage.height).toBe(60); // max(60, 40)
+    }
+  });
+
+  // Test that same-sized images still work correctly
+  it('should still work correctly with same-sized images', () => {
+    // Create identical images
+    const img1 = createTestImage(100, 50, 255, 0, 0); // red, 100x50
+    const img2 = createTestImage(100, 50, 255, 0, 0); // red, 100x50 (identical)
+    
+    fs.writeFileSync(img1Path, PNG.sync.write(img1));
+    fs.writeFileSync(img2Path, PNG.sync.write(img2));
+
+    const result = compareAndMergeImages(img1Path, img2Path, 0.1);
+    expect(result.isMatch).toBe(true);
+    expect(result.mergedImagePath).toBeUndefined();
+  });
+
+  it('should detect differences in same-sized images', () => {
+    // Create different images of same size
+    const img1 = createTestImage(100, 50, 255, 0, 0); // red, 100x50
+    const img2 = createTestImage(100, 50, 0, 255, 0); // green, 100x50
+    
+    fs.writeFileSync(img1Path, PNG.sync.write(img1));
+    fs.writeFileSync(img2Path, PNG.sync.write(img2));
+
+    const result = compareAndMergeImages(img1Path, img2Path, 0.1);
+    expect(result.isMatch).toBe(false);
+    expect(result.mergedImagePath).toBeDefined();
+    
+    // Verify the merged image exists and can be read
+    if (result.mergedImagePath) {
+      expect(fs.existsSync(result.mergedImagePath)).toBe(true);
+      const mergedImage = PNG.sync.read(fs.readFileSync(result.mergedImagePath));
+      expect(mergedImage.width).toBe(200); // 100 + 100
+      expect(mergedImage.height).toBe(50); // max(50, 50)
     }
   });
 });
