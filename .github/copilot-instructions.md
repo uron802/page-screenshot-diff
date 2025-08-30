@@ -1,109 +1,109 @@
 # page-screenshot-diff
 
-Web page screenshot capture and image difference comparison tool built with TypeScript, Node.js, and Puppeteer. Generates screenshots of web pages and compares images to detect visual differences.
+TypeScript、Node.js、Puppeteerで構築されたウェブページのスクリーンショット取得と画像差分比較ツール。ウェブページのスクリーンショットを生成し、画像を比較してビジュアルな差分を検出します。
 
-Always reference these instructions first and fallback to search or bash commands only when you encounter unexpected information that does not match the info here.
+まずこの指示書を参照し、ここにある情報と一致しない予期しない情報に遭遇した場合のみ、検索やbashコマンドにフォールバックしてください。
 
-## Working Effectively
+## 効果的な作業方法
 
-### Bootstrap and Build
-- Install dependencies: `PUPPETEER_SKIP_DOWNLOAD=1 npm install` -- takes 4 seconds. Use this flag to avoid Chrome download which fails due to network restrictions.
-- Build the project: `npm run build` -- takes 2 seconds. NEVER CANCEL. Compiles TypeScript from `src/` to `dist/`.
-- The build is very fast and should always complete in under 5 seconds.
+### ブートストラップとビルド
+- 依存関係のインストール: `PUPPETEER_SKIP_DOWNLOAD=1 npm install` -- 4秒かかります。ネットワーク制限によりChromeダウンロードが失敗するため、このフラグを使用してください。
+- プロジェクトのビルド: `npm run build` -- 2秒かかります。絶対にキャンセルしないでください。`src/`から`dist/`へTypeScriptをコンパイルします。
+- ビルドは非常に高速で、常に5秒以内に完了します。
 
-### Testing
-- **Full test suite**: `npm test` -- takes 10 seconds. NEVER CANCEL. Set timeout to 30+ seconds.
-- **Simple test suite**: `npm run test:simple` -- takes 6 seconds. Runs basic functionality tests.
-- **Basic tests**: `npm run test:basic` -- takes 1 second. CommonJS tests without TypeScript.
-- **Docker tests**: Available but require Docker environment setup.
+### テスト
+- **フルテストスイート**: `npm test` -- 10秒かかります。絶対にキャンセルしないでください。タイムアウトを30秒以上に設定してください。
+- **シンプルテストスイート**: `npm run test:simple` -- 6秒かかります。基本機能テストを実行します。
+- **基本テスト**: `npm run test:basic` -- 1秒かかります。TypeScriptなしのCommonJSテストです。
+- **Dockerテスト**: 利用可能ですが、Docker環境の設定が必要です。
 
-### Application Commands
-**Prerequisites**: Set `PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser` (or your system Chrome path) when running locally, as Puppeteer's Chrome download is disabled.
+### アプリケーションコマンド
+**前提条件**: PuppeteerのChromeダウンロードが無効になっているため、ローカルで実行する際は`PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser`（またはシステムのChromePath）を設定してください。
 
-- **Take screenshots**: `node dist/screenshot.js [--concurrency 3] [--device "iPhone 13"]`
-- **Compare images**: `node dist/diff.js [--threshold 0.2]`
-- **Run scenarios**: `node dist/scenario.js --scenario env/scenario.yml --params env/params.csv --output output/run1 [--headless false] [--concurrency 2]`
-- **Compare scenario results**: `node dist/scenarioDiff.js --old output/run1 --new output/run2 [--threshold 0.2]`
+- **スクリーンショット取得**: `node dist/screenshot.js [--concurrency 3] [--device "iPhone 13"]`
+- **画像比較**: `node dist/diff.js [--threshold 0.2]`
+- **シナリオ実行**: `node dist/scenario.js --scenario env/scenario.yml --params env/params.csv --output output/run1 [--headless false] [--concurrency 2]`
+- **シナリオ結果比較**: `node dist/scenarioDiff.js --old output/run1 --new output/run2 [--threshold 0.2]`
 
-## Docker Environment
+## Docker環境
 
-### Docker Build and Setup
-- **Build container**: `docker compose build` -- takes 2+ minutes. NEVER CANCEL. Set timeout to 180+ seconds.
-- **Start container**: `docker compose up -d`
-- **Note**: Docker build currently fails due to TypeScript not being available in production dependencies. The Dockerfile installs only production dependencies but needs TypeScript to build.
+### Dockerビルドとセットアップ
+- **コンテナビルド**: `docker compose build` -- 2分以上かかります。絶対にキャンセルしないでください。タイムアウトを180秒以上に設定してください。
+- **コンテナ起動**: `docker compose up -d`
+- **注意**: TypeScriptが本番依存関係で利用できないため、現在Dockerビルドが失敗します。DockerfileはプロダクションDependenciesのみをインストールしますが、ビルドにはTypeScriptが必要です。
 
-### Docker Testing Commands
-- **Full tests**: `docker compose exec app npm test`
-- **Simple tests**: `docker compose exec app npm run test:simple`
-- **Specific test**: `docker compose exec app npm test -- build.test.ts`
+### Dockerテストコマンド
+- **フルテスト**: `docker compose exec app npm test`
+- **シンプルテスト**: `docker compose exec app npm run test:simple`
+- **特定テスト**: `docker compose exec app npm test -- build.test.ts`
 
-### Docker Application Commands
-- **Screenshots**: `docker compose exec app node dist/screenshot.js`
-- **Image diff**: `docker compose exec app node dist/diff.js`
-- **Scenarios**: `docker compose exec app node dist/scenario.js --scenario env/scenario.yml --params env/params.csv --output output/run1`
+### Dockerアプリケーションコマンド
+- **スクリーンショット**: `docker compose exec app node dist/screenshot.js`
+- **画像差分**: `docker compose exec app node dist/diff.js`
+- **シナリオ**: `docker compose exec app node dist/scenario.js --scenario env/scenario.yml --params env/params.csv --output output/run1`
 
-## Validation
+## 検証
 
-### Required Environment Setup
-- **Node.js 20**: Required for ESM support and Jest configuration.
-- **Chromium/Chrome**: Required for Puppeteer. Set `PUPPETEER_EXECUTABLE_PATH` to system Chrome path.
-- **Docker**: Optional but recommended for production-like environment.
+### 必要な環境設定
+- **Node.js 20**: ESMサポートとJest設定に必要です。
+- **Chromium/Chrome**: Puppeteerに必要です。システムのChromePathに`PUPPETEER_EXECUTABLE_PATH`を設定してください。
+- **Docker**: オプションですが、本番環境に近い環境として推奨されます。
 
-### Manual Testing Workflow
-1. **Build validation**: Run `npm run build` and verify `dist/` directory is created with .js files.
-2. **Test validation**: Run `npm run test:simple` to verify core functionality.
-3. **Application test**: Run `PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser node dist/screenshot.js` and verify it attempts to capture screenshots (may fail due to network restrictions).
-4. **Docker test**: Run `docker compose build` and verify container builds successfully (currently fails - document this limitation).
+### 手動テストワークフロー
+1. **ビルド検証**: `npm run build`を実行し、.jsファイルとともに`dist/`ディレクトリが作成されることを確認します。
+2. **テスト検証**: `npm run test:simple`を実行してコア機能を検証します。
+3. **アプリケーションテスト**: `PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser node dist/screenshot.js`を実行し、スクリーンショット取得を試行することを確認します（ネットワーク制限により失敗する可能性があります）。
+4. **Dockerテスト**: `docker compose build`を実行し、コンテナが正常にビルドされることを確認します（現在失敗します - この制限を文書化してください）。
 
-### CI/CD Integration
-- GitHub Actions workflow in `.github/workflows/test.yml` runs tests with system Chromium.
-- Always run `npm test` before committing to ensure CI compatibility.
+### CI/CD統合
+- `.github/workflows/test.yml`のGitHub Actionsワークフローは、システムChromiumでテストを実行します。
+- CI互換性を確保するため、コミット前に必ず`npm test`を実行してください。
 
-## Project Structure
+## プロジェクト構造
 
-### Source Code (`src/`)
-- `screenshot.ts` - Main screenshot capture functionality using Puppeteer
-- `diff.ts` - Image comparison using pixelmatch and PNGJS
-- `scenario.ts` - Scenario-based screenshot capture with YAML configuration
-- `scenarioDiff.ts` - Compare scenario execution results
-- `types/config.ts` - Configuration type definitions and loaders
+### ソースコード (`src/`)
+- `screenshot.ts` - Puppeteerを使用したメインスクリーンショット取得機能
+- `diff.ts` - pixelmatchとPNGJSを使用した画像比較
+- `scenario.ts` - YAML設定でのシナリオベーススクリーンショット取得
+- `scenarioDiff.ts` - シナリオ実行結果の比較
+- `types/config.ts` - 設定タイプ定義とローダー
 
-### Configuration Files
-- `package.json` - NPM configuration with ESM type and Jest scripts
-- `tsconfig.json` - TypeScript configuration targeting ES2020 with ESNext modules
-- `jest.config.js` - Jest configuration for ESM support with custom setup
-- `docker-compose.yml` - Docker service definition with volume mounts
-- `Dockerfile` - Multi-stage build with Puppeteer dependencies (has build issues)
+### 設定ファイル
+- `package.json` - ESMタイプとJestスクリプトを持つNPM設定
+- `tsconfig.json` - ESNextモジュールでES2020をターゲットとするTypeScript設定
+- `jest.config.js` - カスタムセットアップでESMサポートするJest設定
+- `docker-compose.yml` - ボリュームマウントを持つDockerサービス定義
+- `Dockerfile` - Puppeteer依存関係を持つマルチステージビルド（ビルドの問題があります）
 
-### Environment Configuration (`env/`)
-- `screenshot.yml` - URL list and output configuration for screenshots
-- `diff.yml` - Source/target directories and threshold configuration
-- Create `scenario.yml` and `params.csv` for scenario testing
+### 環境設定 (`env/`)
+- `screenshot.yml` - スクリーンショット用のURLリストと出力設定
+- `diff.yml` - ソース/ターゲットディレクトリとしきい値設定
+- シナリオテスト用の`scenario.yml`と`params.csv`を作成
 
-### Test Structure (`__tests__/`)
-- Comprehensive test suite covering all modules
-- Mix of TypeScript (.test.ts) and CommonJS (.test.cjs) tests
-- Mocked Puppeteer for CI compatibility
-- Docker environment detection and testing
+### テスト構造 (`__tests__/`)
+- 全モジュールをカバーする包括的なテストスイート
+- TypeScript (.test.ts) とCommonJS (.test.cjs) テストの混在
+- CI互換性のためのモックPuppeteer
+- Docker環境検出とテスト
 
-## Known Issues and Limitations
+## 既知の問題と制限
 
-### Network and Chrome Installation
-- **Puppeteer Chrome download fails** due to network restrictions. Always use `PUPPETEER_SKIP_DOWNLOAD=1` flag.
-- **System Chrome required**: Set `PUPPETEER_EXECUTABLE_PATH` to system Chrome location.
-- **Network requests fail** in sandboxed environments - application may error when accessing external URLs.
+### ネットワークとChromeインストール
+- **PuppeteerのChromeダウンロードが失敗**: ネットワーク制限のため。必ず`PUPPETEER_SKIP_DOWNLOAD=1`フラグを使用してください。
+- **システムChromeが必要**: システムChrome場所に`PUPPETEER_EXECUTABLE_PATH`を設定してください。
+- **ネットワークリクエストが失敗**: サンドボックス環境では - 外部URLアクセス時にアプリケーションがエラーになる可能性があります。
 
-### Docker Limitations
-- **Docker build fails**: TypeScript is in devDependencies but needed for build step in production container.
-- **Workaround**: Modify Dockerfile to install devDependencies or move TypeScript to dependencies.
+### Docker制限
+- **Dockerビルドが失敗**: TypeScriptがdevDependenciesにありますが、本番コンテナのビルドステップで必要です。
+- **回避策**: DockerfileをdevDependenciesインストールするか、TypeScriptをdependenciesに移動するよう修正してください。
 
-### CI/CD Compatibility
-- Tests pass in GitHub Actions with system Chromium.
-- Local testing requires environment variable setup for Chrome path.
+### CI/CD互換性
+- テストはシステムChromiumでGitHub Actionsにパスします。
+- ローカルテストはChromePath用の環境変数設定が必要です。
 
-## Common Commands Reference
+## 共通コマンドリファレンス
 
-### Repository Root Directory Listing
+### リポジトリルートディレクトリリスト
 ```
 .git/
 .github/
@@ -121,7 +121,7 @@ src/
 tsconfig.json
 ```
 
-### Build Output (`dist/` after `npm run build`)
+### ビルド出力 (`npm run build`後の`dist/`)
 ```
 diff.js
 scenario.js
@@ -130,7 +130,7 @@ screenshot.js
 types/
 ```
 
-### package.json Key Scripts
+### package.jsonキースクリプト
 ```json
 {
   "build": "tsc",
@@ -140,9 +140,9 @@ types/
 }
 ```
 
-## Quick Start Checklist
-- [ ] Run `PUPPETEER_SKIP_DOWNLOAD=1 npm install`
-- [ ] Run `npm run build`
-- [ ] Run `npm run test:simple` to verify setup
-- [ ] Set `PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser` for screenshot functionality
-- [ ] Test with `node dist/screenshot.js` (may fail due to network restrictions but should show Chrome launching)
+## クイックスタートチェックリスト
+- [ ] `PUPPETEER_SKIP_DOWNLOAD=1 npm install`を実行
+- [ ] `npm run build`を実行
+- [ ] セットアップ確認のため`npm run test:simple`を実行
+- [ ] スクリーンショット機能のため`PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser`を設定
+- [ ] `node dist/screenshot.js`でテスト（ネットワーク制限により失敗する可能性がありますが、Chrome起動が表示されるはずです）
